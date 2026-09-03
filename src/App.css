@@ -20,7 +20,6 @@ body {
     Roboto,
     Arial,
     sans-serif;
-
   background: #050507;
   color: #ffffff;
 }
@@ -30,9 +29,7 @@ a {
   font-family: inherit;
 }
 
-/* =========================
-   APP BACKGROUND
-========================= */
+/* BACKGROUND */
 
 .app-shell {
   width: 100%;
@@ -59,9 +56,7 @@ a {
     #050507;
 }
 
-/* =========================
-   MAIN WRAPPER
-========================= */
+/* MAIN */
 
 .login-wrapper {
   width: 100%;
@@ -69,9 +64,7 @@ a {
   margin: auto;
 }
 
-/* =========================
-   BRAND
-========================= */
+/* BRAND */
 
 .brand {
   width: 100%;
@@ -84,7 +77,6 @@ a {
   height: 96px;
 
   margin: 0 auto 15px;
-
   padding: 3px;
 
   border-radius: 25px;
@@ -107,11 +99,9 @@ a {
   height: 100%;
 
   display: block;
-
   object-fit: contain;
 
   border-radius: 22px;
-
   background: #08080b;
 }
 
@@ -122,29 +112,22 @@ a {
   line-height: 1.1;
 
   font-weight: 850;
-
   letter-spacing: 2.2px;
-
-  color: #ffffff;
 }
 
 .brand p {
   margin: 8px 0 0;
 
   font-size: 10px;
-
   line-height: 1.3;
 
   font-weight: 700;
-
   letter-spacing: 1.8px;
 
   color: #a39cac;
 }
 
-/* =========================
-   LOGIN CARD
-========================= */
+/* CARD */
 
 .login-card {
   width: 100%;
@@ -167,9 +150,7 @@ a {
     0 0 40px rgba(95, 45, 220, 0.08);
 }
 
-/* =========================
-   WELCOME
-========================= */
+/* WELCOME */
 
 .welcome-section {
   text-align: center;
@@ -189,13 +170,10 @@ a {
   margin: 7px 0 0;
 
   color: #928c9d;
-
   font-size: 13px;
 }
 
-/* =========================
-   GOOGLE
-========================= */
+/* GOOGLE */
 
 .google-login {
   width: 100%;
@@ -208,7 +186,6 @@ a {
   border: 1px solid rgba(255, 255, 255, 0.15);
 
   background: #17151f;
-
   color: #ffffff;
 
   display: flex;
@@ -250,7 +227,6 @@ a {
 .google-icon-svg {
   width: 22px;
   height: 22px;
-
   display: block;
 }
 
@@ -273,9 +249,7 @@ a {
   text-align: right;
 }
 
-/* =========================
-   ERROR
-========================= */
+/* ERROR */
 
 .login-error {
   margin-top: 10px;
@@ -295,9 +269,7 @@ a {
   text-align: center;
 }
 
-/* =========================
-   DIVIDER
-========================= */
+/* DIVIDER */
 
 .divider {
   width: 100%;
@@ -322,33 +294,28 @@ a {
   color: #777181;
 
   font-size: 10px;
-
   font-weight: 800;
-
   letter-spacing: 1px;
 }
 
-/* =========================
-   ACTION CARDS
-========================= */
+/* TELEGRAM CARDS */
 
 .action-card {
   width: 100%;
-  min-height: 82px;
+  min-height: 150px;
 
-  margin-top: 12px;
+  margin-top: 14px;
 
-  padding: 13px 15px;
+  padding: 20px 15px;
 
-  border-radius: 18px;
+  border-radius: 20px;
 
   display: flex;
+  flex-direction: column;
   align-items: center;
-
-  gap: 14px;
+  justify-content: center;
 
   text-decoration: none;
-
   color: #ffffff;
 
   background:
@@ -383,23 +350,21 @@ a {
   transform: scale(0.99);
 }
 
-/* =========================
-   TELEGRAM ICON
-========================= */
+/* TELEGRAM LOGO */
 
 .telegram-logo {
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
 
-  min-width: 48px;
-
-  border-radius: 15px;
+  border-radius: 17px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   color: #ffffff;
+
+  margin-bottom: 10px;
 }
 
 .telegram-logo.blue {
@@ -425,65 +390,51 @@ a {
 }
 
 .telegram-icon-svg {
-  width: 25px;
-  height: 25px;
+  width: 28px;
+  height: 28px;
 
   display: block;
 }
 
-/* =========================
-   ACTION TEXT
-========================= */
+/* CENTER TEXT */
 
 .action-content {
-  min-width: 0;
-
-  flex: 1;
+  width: 100%;
 
   display: flex;
-
   flex-direction: column;
+  align-items: center;
 
-  justify-content: center;
-
-  align-items: flex-start;
-
-  text-align: left;
+  text-align: center;
 }
 
 .action-label {
   color: #9891a5;
 
   font-size: 9px;
-
   line-height: 1.2;
 
   font-weight: 850;
-
   letter-spacing: 1.25px;
 
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .action-title {
   color: #ffffff;
 
-  font-size: 16px;
-
+  font-size: 17px;
   line-height: 1.2;
 
   font-weight: 800;
-
-  white-space: nowrap;
 }
 
 .action-link {
-  margin-top: 4px;
+  margin-top: 6px;
 
   color: #b58cff;
 
   font-size: 11px;
-
   line-height: 1.2;
 
   font-weight: 750;
@@ -491,43 +442,33 @@ a {
 
 .action-link span {
   margin-left: 5px;
-
   font-size: 14px;
 }
 
-/* =========================
-   SECURITY
-========================= */
+/* SECURITY */
 
 .security {
-  margin-top: 19px;
+  margin-top: 20px;
 
   display: flex;
-
   justify-content: center;
-
   align-items: center;
 
   flex-wrap: wrap;
-
   gap: 6px;
 
   color: #716b79;
 
   font-size: 9px;
-
   font-weight: 650;
 }
 
 .security i {
   color: #4c4853;
-
   font-style: normal;
 }
 
-/* =========================
-   FOOTER
-========================= */
+/* FOOTER */
 
 .footer {
   margin-top: 17px;
@@ -537,7 +478,6 @@ a {
   color: #5f5a67;
 
   font-size: 9px;
-
   font-weight: 650;
 
   letter-spacing: 0.8px;
@@ -547,9 +487,7 @@ a {
   margin: 0 6px;
 }
 
-/* =========================
-   MOBILE
-========================= */
+/* MOBILE */
 
 @media (max-width: 480px) {
   .app-shell {
@@ -568,7 +506,6 @@ a {
   .brand-logo-frame {
     width: 84px;
     height: 84px;
-
     border-radius: 22px;
   }
 
@@ -588,7 +525,6 @@ a {
 
   .login-card {
     padding: 19px 16px;
-
     border-radius: 22px;
   }
 
@@ -609,41 +545,27 @@ a {
   }
 
   .action-card {
-    min-height: 78px;
-
-    padding: 12px;
+    min-height: 145px;
+    padding: 18px 12px;
   }
 
   .telegram-logo {
-    width: 44px;
-    height: 44px;
-
-    min-width: 44px;
-
-    border-radius: 13px;
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
   }
 
   .telegram-icon-svg {
-    width: 23px;
-    height: 23px;
+    width: 25px;
+    height: 25px;
   }
 
   .action-title {
-    font-size: 15px;
-  }
-
-  .action-label {
-    font-size: 8px;
-  }
-
-  .action-link {
-    font-size: 10px;
+    font-size: 16px;
   }
 }
 
-/* =========================
-   VERY SMALL PHONES
-========================= */
+/* VERY SMALL PHONES */
 
 @media (max-width: 360px) {
   .app-shell {
@@ -672,10 +594,10 @@ a {
   }
 
   .action-card {
-    gap: 11px;
+    min-height: 140px;
   }
 
   .action-title {
-    font-size: 14px;
+    font-size: 15px;
   }
 }

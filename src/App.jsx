@@ -8,11 +8,7 @@ const TELEGRAM_SUPPORT = "https://t.me/Jirmas_Trader";
 
 function GoogleIcon() {
   return (
-    <svg
-      className="google-icon-svg"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg className="google-icon-svg" viewBox="0 0 24 24">
       <path
         fill="#4285F4"
         d="M21.35 12.27c0-.72-.06-1.41-.18-2.07H12v3.92h5.23a4.47 4.47 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.92-4.18 2.92-7.24Z"
@@ -35,11 +31,7 @@ function GoogleIcon() {
 
 function TelegramIcon() {
   return (
-    <svg
-      className="telegram-icon-svg"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg className="telegram-icon-svg" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M21.6 3.2 2.9 10.4c-1.28.51-1.27 1.22-.23 1.54l4.8 1.5 1.84 5.7c.22.61.11.86.74.86.49 0 .7-.22.96-.48l2.32-2.26 4.83 3.57c.89.49 1.53.23 1.75-.82l3.16-14.9c.32-1.27-.48-1.84-1.46-1.41Zm-3.7 3.2-7.95 7.08-.31 3.39-1.47-4.56 9.73-6.13c.43-.27.83-.12.5.22Z"
@@ -78,7 +70,7 @@ function App() {
     <div className="app-shell">
       <main className="login-wrapper">
 
-        {/* BRAND */}
+        {/* LOGO + BRAND */}
         <header className="brand">
           <div className="brand-logo-frame">
             <img
@@ -89,13 +81,12 @@ function App() {
           </div>
 
           <h1>JIRMAS SIGNALS</h1>
-
           <p>PROFESSIONAL 1 MIN MARKET SIGNALS</p>
         </header>
 
-        {/* LOGIN CARD */}
         <section className="login-card">
 
+          {/* WELCOME */}
           <div className="welcome-section">
             <h2>Welcome Back</h2>
             <p>Sign in to access Jirmas Signals</p>
@@ -116,9 +107,7 @@ function App() {
               {loading ? "Connecting..." : "Continue with Google"}
             </span>
 
-            {!loading && (
-              <span className="button-arrow">→</span>
-            )}
+            {!loading && <span className="button-arrow">→</span>}
           </button>
 
           {message && (
@@ -134,36 +123,9 @@ function App() {
             <span></span>
           </div>
 
-          {/* COMMUNITY */}
+          {/* 1 — SUPPORT FIRST */}
           <a
-            className="action-card"
-            href={TELEGRAM_CHANNEL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="telegram-logo blue">
-              <TelegramIcon />
-            </div>
-
-            <div className="action-content">
-              <div className="action-label">
-                JOIN OUR COMMUNITY
-              </div>
-
-              <div className="action-title">
-                Jirmas Trade Zone
-              </div>
-
-              <div className="action-link">
-                Join Channel
-                <span>→</span>
-              </div>
-            </div>
-          </a>
-
-          {/* SUPPORT */}
-          <a
-            className="action-card"
+            className="action-card centered-card"
             href={TELEGRAM_SUPPORT}
             target="_blank"
             rel="noopener noreferrer"
@@ -182,8 +144,33 @@ function App() {
               </div>
 
               <div className="action-link">
-                Contact Support
-                <span>→</span>
+                Contact Support <span>→</span>
+              </div>
+            </div>
+          </a>
+
+          {/* 2 — JOIN CHANNEL SECOND */}
+          <a
+            className="action-card centered-card"
+            href={TELEGRAM_CHANNEL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div className="telegram-logo blue">
+              <TelegramIcon />
+            </div>
+
+            <div className="action-content">
+              <div className="action-label">
+                JOIN OUR COMMUNITY
+              </div>
+
+              <div className="action-title">
+                Jirmas Trade Zone
+              </div>
+
+              <div className="action-link">
+                Join Channel <span>→</span>
               </div>
             </div>
           </a>
@@ -199,7 +186,6 @@ function App() {
           </div>
         </section>
 
-        {/* FOOTER */}
         <footer className="footer">
           ©️ 2026 JIRMAS SIGNALS
           <span>•</span>
