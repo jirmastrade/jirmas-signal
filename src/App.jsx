@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { supabase } from "./lib/supabaseClient";
 import logo from "./assets/IMG_5520.PNG";
@@ -8,78 +8,76 @@ const COMMUNITY_URL = "https://t.me/jirmastradezone";
 
 const MARKETS = {
   Forex: [
-    ["EUR/USD", "EUR/USD"],
-    ["GBP/USD", "GBP/USD"],
-    ["USD/JPY", "USD/JPY"],
-    ["USD/CHF", "USD/CHF"],
-    ["AUD/USD", "AUD/USD"],
-    ["USD/CAD", "USD/CAD"],
-    ["NZD/USD", "NZD/USD"],
+    { label: "EUR/USD", symbol: "EUR/USD", tv: "FX:EURUSD" },
+    { label: "GBP/USD", symbol: "GBP/USD", tv: "FX:GBPUSD" },
+    { label: "USD/JPY", symbol: "USD/JPY", tv: "FX:USDJPY" },
+    { label: "USD/CHF", symbol: "USD/CHF", tv: "FX:USDCHF" },
+    { label: "AUD/USD", symbol: "AUD/USD", tv: "FX:AUDUSD" },
+    { label: "USD/CAD", symbol: "USD/CAD", tv: "FX:USDCAD" },
+    { label: "NZD/USD", symbol: "NZD/USD", tv: "FX:NZDUSD" },
+    { label: "EUR/GBP", symbol: "EUR/GBP", tv: "FX:EURGBP" },
   ],
   Gold: [
-    ["XAU/USD", "XAU/USD"],
-    ["XAG/USD", "XAG/USD"],
+    { label: "XAU/USD", symbol: "XAU/USD", tv: "OANDA:XAUUSD" },
+    { label: "XAG/USD", symbol: "XAG/USD", tv: "OANDA:XAGUSD" },
   ],
   Crypto: [
-    ["BTC/USD", "BTC/USD"],
-    ["ETH/USD", "ETH/USD"],
-    ["BNB/USD", "BNB/USD"],
-    ["SOL/USD", "SOL/USD"],
-    ["XRP/USD", "XRP/USD"],
+    { label: "BTC/USD", symbol: "BTC/USD", tv: "COINBASE:BTCUSD" },
+    { label: "ETH/USD", symbol: "ETH/USD", tv: "COINBASE:ETHUSD" },
+    { label: "SOL/USD", symbol: "SOL/USD", tv: "COINBASE:SOLUSD" },
   ],
   Stocks: [
-    ["AAPL", "AAPL"],
-    ["TSLA", "TSLA"],
-    ["NVDA", "NVDA"],
-    ["AMZN", "AMZN"],
-    ["MSFT", "MSFT"],
-    ["META", "META"],
+    { label: "AAPL", symbol: "AAPL", tv: "NASDAQ:AAPL" },
+    { label: "MSFT", symbol: "MSFT", tv: "NASDAQ:MSFT" },
+    { label: "NVDA", symbol: "NVDA", tv: "NASDAQ:NVDA" },
+    { label: "TSLA", symbol: "TSLA", tv: "NASDAQ:TSLA" },
   ],
   Indices: [
-    ["S&P 500", "SPX"],
-    ["NASDAQ 100", "NDX"],
-    ["DOW", "DJI"],
+    { label: "S&P 500", symbol: "SPX", tv: "SP:SPX" },
+    { label: "NASDAQ 100", symbol: "NDX", tv: "NASDAQ:NDX" },
+    { label: "DOW", symbol: "DJI", tv: "DJ:DJI" },
   ],
   Commodities: [
-    ["BRENT", "BRENT"],
-    ["WTI", "WTI"],
+    { label: "WTI Oil", symbol: "WTI", tv: "TVC:USOIL" },
+    { label: "Brent Oil", symbol: "BRENT", tv: "TVC:UKOIL" },
+    { label: "Natural Gas", symbol: "NATGAS", tv: "NYMEX:NG1!" },
   ],
   ETFs: [
-    ["SPY", "SPY"],
-    ["QQQ", "QQQ"],
-    ["DIA", "DIA"],
+    { label: "SPY", symbol: "SPY", tv: "AMEX:SPY" },
+    { label: "QQQ", symbol: "QQQ", tv: "NASDAQ:QQQ" },
+    { label: "GLD", symbol: "GLD", tv: "AMEX:GLD" },
   ],
 };
 
-function GoogleIcon() {
+function TelegramIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
-        fill="#4285F4"
-        d="M21.35 12.23c0-.78-.07-1.53-.23-2.25H12v4.26h5.24a4.48 4.48 0 0 1-1.94 2.94v2.44h3.14c1.84-1.69 2.91-4.18 2.91-7.39Z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 21.6c2.63 0 4.84-.87 6.45-2.36l-3.14-2.44c-.87.58-1.98.93-3.31.93-2.55 0-4.71-1.72-5.49-4.03H3.26v2.52A9.74 9.74 0 0 0 12 21.6Z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M6.51 13.7a5.86 5.86 0 0 1 0-3.4V7.78H3.26a9.7 9.7 0 0 0 0 8.44l3.25-2.52Z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 6.27c1.43 0 2.72.49 3.74 1.45l2.8-2.8C16.84 3.38 14.63 2.4 12 2.4a9.74 9.74 0 0 0-8.74 5.38l3.25 2.52C7.29 7.99 9.45 6.27 12 6.27Z"
+        fill="currentColor"
+        d="M21.7 3.2 18.4 20c-.25 1.18-.91 1.47-1.85.92l-5.1-3.76-2.46 2.37c-.27.27-.5.5-1.03.5l.37-5.2 9.47-8.55c.41-.37-.09-.58-.64-.21L5.45 13.55.4 11.97c-1.1-.35-1.12-1.1.23-1.6L20.36 2.8c.91-.34 1.7.21 1.34.4Z"
       />
     </svg>
   );
 }
 
-function TelegramIcon() {
+function GoogleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
-        fill="currentColor"
-        d="M21.4 4.6 18.2 20c-.24 1.09-.89 1.36-1.8.85l-5-3.69-2.41 2.32c-.27.27-.5.5-1.03.5l.37-5.11 9.3-8.4c.4-.36-.09-.56-.62-.2L5.5 13.67.6 12.13c-1.07-.34-1.09-1.07.22-1.56L20 3.12c.9-.33 1.69.2 1.4 1.48Z"
+        fill="#4285F4"
+        d="M21.35 12.27c0-.71-.06-1.39-.18-2.04H12v3.86h5.23a4.47 4.47 0 0 1-1.94 2.93v2.43h3.14c1.84-1.69 2.92-4.18 2.92-7.18Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 21.5c2.63 0 4.84-.87 6.45-2.35l-3.14-2.43c-.87.58-1.98.93-3.31.93-2.54 0-4.69-1.72-5.46-4.03H3.3v2.51A9.74 9.74 0 0 0 12 21.5Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M6.54 13.62A5.86 5.86 0 0 1 6.23 12c0-.56.11-1.11.31-1.62V7.87H3.3A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.06 1.05 4.13l3.24-2.51Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 6.35c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.83 3.47 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.37l3.24 2.51C7.31 8.07 9.46 6.35 12 6.35Z"
       />
     </svg>
   );
@@ -87,66 +85,53 @@ function TelegramIcon() {
 
 function LoginPage({ onLogin }) {
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <img src={logo} className="login-logo" alt="Jirmas Signals" />
+    <main className="auth-page">
+      <div className="auth-card">
+        <img className="auth-logo" src={logo} alt="Jirmas Signals" />
 
-        <h1 className="login-title">JIRMAS SIGNALS</h1>
-
-        <p className="login-subtitle">
-          PROFESSIONAL LIVE MARKET ANALYSIS
+        <h1>JIRMAS SIGNALS</h1>
+        <p className="auth-subtitle">
+          Professional Live Market Analysis
         </p>
 
-        <button className="google-login-btn" onClick={onLogin}>
+        <button className="google-btn" onClick={onLogin}>
           <GoogleIcon />
-          Continue with Google
+          <span>Continue with Google</span>
         </button>
 
-        <div className="login-divider">
-          <span>Need Support?</span>
+        <div className="auth-links">
+          <a href={SUPPORT_URL} target="_blank" rel="noreferrer">
+            <TelegramIcon />
+            <span>
+              <small>Need Support?</small>
+              <strong>Jirmas Trader</strong>
+            </span>
+          </a>
+
+          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer">
+            <TelegramIcon />
+            <span>
+              <small>Join Our Community</small>
+              <strong>Jirmas Trade Zone</strong>
+            </span>
+          </a>
         </div>
-
-        <a
-          className="telegram-link"
-          href={SUPPORT_URL}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <TelegramIcon />
-          <span>Jirmas Trader</span>
-        </a>
-
-        <div className="login-divider community-divider">
-          <span>Join Our Community</span>
-        </div>
-
-        <a
-          className="telegram-link community"
-          href={COMMUNITY_URL}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <TelegramIcon />
-          <span>Jirmas Trade Zone</span>
-        </a>
       </div>
-    </div>
+    </main>
   );
 }
 
-function ActivationScreen({ onLogout }) {
+function ActivationScreen({ email, onLogout }) {
   return (
-    <div className="activation-page">
+    <main className="activation-page">
       <div className="activation-card">
-        <div className="activation-logo-wrap">
-          <img src={logo} alt="Jirmas Signals" />
-        </div>
+        <div className="activation-lock">🔒</div>
 
-        <div className="lock-icon">🔐</div>
+        <img className="activation-logo" src={logo} alt="Jirmas Signals" />
 
         <h1>Activate Your Access</h1>
 
-        <p className="activation-main">
+        <p className="activation-title">
           Get Lifetime Access to Jirmas Signals
         </p>
 
@@ -154,46 +139,106 @@ function ActivationScreen({ onLogout }) {
           লাইফটাইম সাবস্ক্রিপশন নিতে আমাদের সাথে যোগাযোগ করুন।
         </p>
 
+        {email && <p className="activation-email">{email}</p>}
+
         <a
+          className="primary-action"
           href={SUPPORT_URL}
           target="_blank"
           rel="noreferrer"
-          className="activation-button"
         >
           <TelegramIcon />
           Contact Jirmas Trader
         </a>
 
-        <div className="lifetime-badge">
+        <div className="lifetime-note">
           ✓ One-time lifetime activation
         </div>
 
+        <p className="contact-note">
+          Contact us to purchase access
+        </p>
+
         <a
+          className="community-link"
           href={COMMUNITY_URL}
           target="_blank"
           rel="noreferrer"
-          className="activation-community"
         >
           Join Jirmas Trade Zone
         </a>
 
-        <button className="logout-small" onClick={onLogout}>
-          Sign out
+        <button className="logout-btn" onClick={onLogout}>
+          Sign Out
         </button>
       </div>
+    </main>
+  );
+}
+
+function TradingViewChart({ symbol }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    containerRef.current.innerHTML = "";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "tradingview-widget-container";
+
+    const chart = document.createElement("div");
+    chart.className = "tradingview-widget-container__widget";
+    wrapper.appendChild(chart);
+
+    const script = document.createElement("script");
+    script.src =
+      "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    script.type = "text/javascript";
+    script.async = true;
+
+    script.innerHTML = JSON.stringify({
+      autosize: true,
+      symbol,
+      interval: "1",
+      timezone: "Asia/Riyadh",
+      theme: "dark",
+      style: "1",
+      locale: "en",
+      allow_symbol_change: false,
+      hide_top_toolbar: false,
+      hide_legend: false,
+      hide_side_toolbar: false,
+      save_image: false,
+      calendar: false,
+      hide_volume: false,
+      support_host: "https://www.tradingview.com",
+    });
+
+    wrapper.appendChild(script);
+    containerRef.current.appendChild(wrapper);
+
+    return () => {
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
+      }
+    };
+  }, [symbol]);
+
+  return (
+    <div className="chart-box tradingview-chart" ref={containerRef}>
+      <div className="chart-loading">Loading TradingView...</div>
     </div>
   );
 }
 
 function calculateEMA(values, period) {
-  if (values.length < period) return null;
+  if (!values.length) return 0;
 
   const multiplier = 2 / (period + 1);
-  let ema = values
-    .slice(0, period)
-    .reduce((sum, value) => sum + value, 0) / period;
+  let ema = values[0];
 
-  for (let i = period; i < values.length; i++) {
+  for (let i = 1; i < values.length; i += 1) {
     ema = (values[i] - ema) * multiplier + ema;
   }
 
@@ -201,45 +246,42 @@ function calculateEMA(values, period) {
 }
 
 function calculateRSI(values, period = 14) {
-  if (values.length <= period) return null;
+  if (values.length <= period) return 50;
 
   let gains = 0;
   let losses = 0;
 
-  for (let i = 1; i <= period; i++) {
+  for (let i = 1; i <= period; i += 1) {
     const change = values[i] - values[i - 1];
 
     if (change >= 0) gains += change;
     else losses += Math.abs(change);
   }
 
-  let averageGain = gains / period;
-  let averageLoss = losses / period;
+  let avgGain = gains / period;
+  let avgLoss = losses / period;
 
-  for (let i = period + 1; i < values.length; i++) {
+  for (let i = period + 1; i < values.length; i += 1) {
     const change = values[i] - values[i - 1];
     const gain = Math.max(change, 0);
     const loss = Math.max(-change, 0);
 
-    averageGain =
-      (averageGain * (period - 1) + gain) / period;
-
-    averageLoss =
-      (averageLoss * (period - 1) + loss) / period;
+    avgGain = (avgGain * (period - 1) + gain) / period;
+    avgLoss = (avgLoss * (period - 1) + loss) / period;
   }
 
-  if (averageLoss === 0) return 100;
+  if (avgLoss === 0) return 100;
 
-  const rs = averageGain / averageLoss;
+  const rs = avgGain / avgLoss;
   return 100 - 100 / (1 + rs);
 }
 
 function calculateATR(candles, period = 14) {
-  if (candles.length <= period) return null;
+  if (candles.length <= period) return 0;
 
-  const trueRanges = [];
+  const trs = [];
 
-  for (let i = 1; i < candles.length; i++) {
+  for (let i = 1; i < candles.length; i += 1) {
     const current = candles[i];
     const previous = candles[i - 1];
 
@@ -249,16 +291,16 @@ function calculateATR(candles, period = 14) {
       Math.abs(current.low - previous.close)
     );
 
-    trueRanges.push(tr);
+    trs.push(tr);
   }
 
-  const recent = trueRanges.slice(-period);
+  const recent = trs.slice(-period);
 
   return recent.reduce((sum, value) => sum + value, 0) / recent.length;
 }
 
-function calculateStoch(candles, period = 14) {
-  if (candles.length < period) return null;
+function calculateStochastic(candles, period = 14) {
+  if (candles.length < period) return 50;
 
   const recent = candles.slice(-period);
 
@@ -271,375 +313,210 @@ function calculateStoch(candles, period = 14) {
   return ((close - lowest) / (highest - lowest)) * 100;
 }
 
-function getSignal(candles) {
-  if (candles.length < 55) {
+function analyzeMarket(candles) {
+  if (!candles || candles.length < 30) {
     return {
       signal: "WAIT",
       score: 0,
-      note: "Waiting for enough market data",
+      rsi: 50,
+      ema20: 0,
+      ema50: 0,
+      atr: 0,
+      stochastic: 50,
+      trend: "NEUTRAL",
+      support: 0,
+      resistance: 0,
     };
   }
 
   const closes = candles.map((c) => c.close);
 
+  const current = closes[closes.length - 1];
   const ema20 = calculateEMA(closes, 20);
   const ema50 = calculateEMA(closes, 50);
   const rsi = calculateRSI(closes);
-  const stoch = calculateStoch(candles);
-  const current = closes[closes.length - 1];
+  const atr = calculateATR(candles);
+  const stochastic = calculateStochastic(candles);
+
+  const recent = candles.slice(-20);
+
+  const support = Math.min(...recent.map((c) => c.low));
+  const resistance = Math.max(...recent.map((c) => c.high));
 
   let buy = 0;
   let sell = 0;
 
   if (current > ema20) buy += 20;
-  else sell += 20;
+  if (current < ema20) sell += 20;
 
   if (ema20 > ema50) buy += 25;
-  else sell += 25;
+  if (ema20 < ema50) sell += 25;
 
-  if (rsi > 55 && rsi < 75) buy += 20;
-  if (rsi < 45 && rsi > 25) sell += 20;
+  if (rsi > 52 && rsi < 70) buy += 20;
+  if (rsi < 48 && rsi > 30) sell += 20;
 
-  if (stoch > 55 && stoch < 85) buy += 15;
-  if (stoch < 45 && stoch > 15) sell += 15;
+  if (stochastic > 50 && stochastic < 85) buy += 15;
+  if (stochastic < 50 && stochastic > 15) sell += 15;
 
-  const previous = closes[closes.length - 2];
-
-  if (current > previous) buy += 20;
-  else if (current < previous) sell += 20;
+  if (current > support && current < resistance) {
+    if (current > (support + resistance) / 2) buy += 10;
+    else sell += 10;
+  }
 
   const score = Math.max(buy, sell);
 
-  if (score >= 70 && buy > sell) {
-    return {
-      signal: "BUY",
-      score,
-      note: "Bullish technical confirmation",
-    };
-  }
+  let signal = "WAIT";
 
-  if (score >= 70 && sell > buy) {
-    return {
-      signal: "SELL",
-      score,
-      note: "Bearish technical confirmation",
-    };
-  }
+  if (buy >= 70 && buy > sell) signal = "BUY";
+  if (sell >= 70 && sell > buy) signal = "SELL";
 
   return {
-    signal: "WAIT",
+    signal,
     score,
-    note: "Market conditions are not strong enough",
+    rsi,
+    ema20,
+    ema50,
+    atr,
+    stochastic,
+    trend:
+      ema20 > ema50
+        ? "BULLISH"
+        : ema20 < ema50
+          ? "BEARISH"
+          : "NEUTRAL",
+    support,
+    resistance,
   };
 }
 
-function formatPrice(value) {
-  if (value === null || value === undefined) return "--";
-
-  if (value >= 1000) return value.toLocaleString(undefined, {
-    maximumFractionDigits: 2,
-  });
-
-  if (value >= 10) return value.toFixed(3);
-
-  return value.toFixed(5);
-}
-
-function SignalChart({ candles }) {
-  if (!candles.length) {
-    return (
-      <div className="chart-card">
-        <div className="chart-empty">
-          Waiting for live candles...
-        </div>
-      </div>
-    );
-  }
-
-  const data = candles.slice(-70);
-
-  const width = 900;
-  const height = 360;
-  const padding = 35;
-
-  const highs = data.map((c) => c.high);
-  const lows = data.map((c) => c.low);
-
-  const max = Math.max(...highs);
-  const min = Math.min(...lows);
-
-  const range = max - min || 1;
-
-  const candleWidth = (width - padding * 2) / data.length;
-
-  const y = (price) =>
-    padding +
-    ((max - price) / range) *
-      (height - padding * 2);
-
-  return (
-    <div className="chart-card">
-      <div className="chart-top">
-        <span>LIVE 1 MINUTE CHART</span>
-        <span className="chart-live">
-          <i></i> LIVE
-        </span>
-      </div>
-
-      <svg
-        className="chart-svg"
-        viewBox={`0 0 ${width} ${height}`}
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <linearGradient
-            id="chartGlow"
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="1"
-          >
-            <stop offset="0%" stopColor="#12e8a0" stopOpacity=".22" />
-            <stop offset="100%" stopColor="#12e8a0" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        <line
-          x1={padding}
-          x2={width - padding}
-          y1={height / 2}
-          y2={height / 2}
-          className="chart-grid"
-        />
-
-        {data.map((candle, index) => {
-          const x =
-            padding +
-            index * candleWidth +
-            candleWidth / 2;
-
-          const openY = y(candle.open);
-          const closeY = y(candle.close);
-          const highY = y(candle.high);
-          const lowY = y(candle.low);
-
-          const bullish = candle.close >= candle.open;
-
-          const bodyTop = Math.min(openY, closeY);
-          const bodyHeight = Math.max(
-            Math.abs(closeY - openY),
-            2
-          );
-
-          return (
-            <g key={`${candle.datetime}-${index}`}>
-              <line
-                x1={x}
-                x2={x}
-                y1={highY}
-                y2={lowY}
-                className={
-                  bullish
-                    ? "candle-wick bullish"
-                    : "candle-wick bearish"
-                }
-              />
-
-              <rect
-                x={x - candleWidth * 0.28}
-                y={bodyTop}
-                width={candleWidth * 0.56}
-                height={bodyHeight}
-                rx="1"
-                className={
-                  bullish
-                    ? "candle-body bullish"
-                    : "candle-body bearish"
-                }
-              />
-            </g>
-          );
-        })}
-      </svg>
-    </div>
-  );
-}
-
-function Dashboard({ onLogout }) {
+function Dashboard({ user, onLogout }) {
   const categories = Object.keys(MARKETS);
 
   const [category, setCategory] = useState("Forex");
-  const [symbol, setSymbol] = useState("EUR/USD");
+  const [instrument, setInstrument] = useState(MARKETS.Forex[0]);
   const [candles, setCandles] = useState([]);
+  const [marketError, setMarketError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const API_KEY =
-    import.meta.env.VITE_TWELVE_DATA_API_KEY;
-
-  const marketList = MARKETS[category];
+  const [lastUpdate, setLastUpdate] = useState(null);
 
   useEffect(() => {
-    if (!marketList.some(([name]) => name === symbol)) {
-      setSymbol(marketList[0][0]);
-    }
+    setInstrument(MARKETS[category][0]);
   }, [category]);
 
-  async function loadMarket() {
-    if (!API_KEY) {
-      setError(
-        "Market data API key is not configured."
-      );
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setError("");
-
-      const apiSymbol =
-        MARKETS[category].find(
-          ([name]) => name === symbol
-        )?.[1] || symbol;
-
-      const url =
-        `https://api.twelvedata.com/time_series` +
-        `?symbol=${encodeURIComponent(apiSymbol)}` +
-        `&interval=1min` +
-        `&outputsize=120` +
-        `&timezone=UTC` +
-        `&apikey=${encodeURIComponent(API_KEY)}`;
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.status === "error" || !data.values) {
-        throw new Error(
-          data.message || "Unable to load market data."
-        );
-      }
-
-      const parsed = data.values
-        .map((item) => ({
-          datetime: item.datetime,
-          open: Number(item.open),
-          high: Number(item.high),
-          low: Number(item.low),
-          close: Number(item.close),
-        }))
-        .reverse();
-
-      setCandles(parsed);
-    } catch (err) {
-      setError(err.message);
-      setCandles([]);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
+
+    async function loadMarket() {
+      try {
+        setLoading(true);
+        setMarketError("");
+
+        const response = await fetch(
+          `/api/market?symbol=${encodeURIComponent(
+            instrument.symbol
+          )}&interval=1min&outputsize=100`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "Market data unavailable");
+        }
+
+        const parsed = (data.values || [])
+          .map((item) => ({
+            datetime: item.datetime,
+            open: Number(item.open),
+            high: Number(item.high),
+            low: Number(item.low),
+            close: Number(item.close),
+          }))
+          .filter(
+            (item) =>
+              Number.isFinite(item.open) &&
+              Number.isFinite(item.high) &&
+              Number.isFinite(item.low) &&
+              Number.isFinite(item.close)
+          )
+          .reverse();
+
+        if (!cancelled) {
+          setCandles(parsed);
+          setLastUpdate(new Date());
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setMarketError(error.message || "Market data unavailable");
+          setCandles([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
     loadMarket();
 
     const timer = setInterval(loadMarket, 15000);
 
-    return () => clearInterval(timer);
-  }, [symbol, category]);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [instrument.symbol]);
 
   const analysis = useMemo(
-    () => getSignal(candles),
+    () => analyzeMarket(candles),
     [candles]
   );
 
-  const closes = candles.map((c) => c.close);
-
-  const currentPrice =
-    closes.length ? closes[closes.length - 1] : null;
+  const currentPrice = candles.length
+    ? candles[candles.length - 1].close
+    : null;
 
   const previousPrice =
-    closes.length > 1
-      ? closes[closes.length - 2]
-      : null;
+    candles.length > 1 ? candles[candles.length - 2].close : null;
 
-  const change =
-    currentPrice && previousPrice
-      ? ((currentPrice - previousPrice) /
-          previousPrice) *
-        100
+  const priceChange =
+    currentPrice !== null && previousPrice !== null
+      ? currentPrice - previousPrice
       : 0;
 
-  const ema20 = calculateEMA(closes, 20);
-  const ema50 = calculateEMA(closes, 50);
-  const rsi = calculateRSI(closes);
-  const atr = calculateATR(candles);
-  const stoch = calculateStoch(candles);
-
-  const support = candles.length
-    ? Math.min(
-        ...candles.slice(-30).map((c) => c.low)
-      )
-    : null;
-
-  const resistance = candles.length
-    ? Math.max(
-        ...candles.slice(-30).map((c) => c.high)
-      )
-    : null;
-
-  const signalClass =
-    analysis.signal.toLowerCase();
+  const priceDigits =
+    instrument.symbol.includes("JPY") || instrument.symbol.includes("XAU")
+      ? 2
+      : instrument.symbol.includes("BTC") ||
+          instrument.symbol.includes("ETH")
+        ? 2
+        : 5;
 
   return (
-    <div className="dashboard">
-
-      {/* HEADER */}
-
+    <main className="dashboard-page">
       <header className="dashboard-header">
-        <div className="brand">
-          <img
-            src={logo}
-            className="brand-logo"
-            alt="Jirmas"
-          />
-
-          <div className="brand-text">
-            <h1>JIRMAS SIGNALS</h1>
-            <p>LIVE MARKET INTELLIGENCE</p>
+        <div className="brand-area">
+          <img src={logo} alt="Jirmas Signals" />
+          <div>
+            <strong>JIRMAS SIGNALS</strong>
+            <span>LIVE MARKET ANALYSIS</span>
           </div>
         </div>
 
-        <div className="header-right">
-          <span className="live-badge">
-            <i></i> LIVE
-          </span>
-
-          <button
-            className="logout-button"
-            onClick={onLogout}
-          >
-            Sign out
-          </button>
+        <div className="user-area">
+          <span>{user?.email}</span>
+          <button onClick={onLogout}>Sign Out</button>
         </div>
       </header>
 
-      {/* MARKET CATEGORY */}
+      <section className="dashboard-content">
+        <div className="market-category-box">
+          <div className="section-label">MARKETS</div>
 
-      <section className="dashboard-section">
-        <div className="section-label">
-          MARKET
-        </div>
-
-        <div className="market-box">
-          <div className="market-tabs">
+          <div className="horizontal-scroll">
             {categories.map((item) => (
               <button
                 key={item}
-                className={
-                  category === item
-                    ? "market-tab active"
-                    : "market-tab"
-                }
+                className={category === item ? "market-tab active" : "market-tab"}
                 onClick={() => setCategory(item)}
               >
                 {item}
@@ -647,308 +524,223 @@ function Dashboard({ onLogout }) {
             ))}
           </div>
         </div>
-      </section>
 
-      {/* MARKET SYMBOL */}
+        <div className="instrument-box">
+          <div className="section-label">{category}</div>
 
-      <section className="dashboard-section">
-        <div className="section-label">
-          SELECT INSTRUMENT
-        </div>
-
-        <div className="market-box symbol-box">
-          <div className="market-selector">
-            {marketList.map(([name]) => (
+          <div className="horizontal-scroll">
+            {MARKETS[category].map((item) => (
               <button
-                key={name}
+                key={item.label}
                 className={
-                  symbol === name
-                    ? "market-button active"
-                    : "market-button"
+                  instrument.label === item.label
+                    ? "instrument-tab active"
+                    : "instrument-tab"
                 }
-                onClick={() => setSymbol(name)}
+                onClick={() => setInstrument(item)}
               >
-                {name}
+                {item.label}
               </button>
             ))}
           </div>
         </div>
-      </section>
 
-      {/* MARKET HEADER */}
-
-      <section className="market-overview">
-        <div>
-          <div className="market-name">
-            {symbol}
+        <section className="market-overview">
+          <div>
+            <span className="overview-label">MARKET</span>
+            <h2>{instrument.label}</h2>
           </div>
 
-          <div className="market-timeframe">
-            1 MINUTE • LIVE MARKET DATA
+          <div className="price-area">
+            <span className="overview-label">LIVE PRICE</span>
+            <strong>
+              {currentPrice !== null
+                ? currentPrice.toFixed(priceDigits)
+                : "--"}
+            </strong>
+
+            <small className={priceChange >= 0 ? "positive" : "negative"}>
+              {currentPrice !== null
+                ? `${priceChange >= 0 ? "+" : ""}${priceChange.toFixed(
+                    priceDigits
+                  )}`
+                : "--"}
+            </small>
           </div>
-        </div>
+        </section>
 
-        <div className="market-price-wrap">
-          <div className="market-price">
-            {formatPrice(currentPrice)}
+        <section className="chart-section">
+          <div className="section-heading">
+            <div>
+              <span className="section-label">LIVE CHART</span>
+              <h3>{instrument.label}</h3>
+            </div>
+
+            <span className="live-dot">
+              <i /> LIVE
+            </span>
           </div>
 
-          <div
-            className={
-              change >= 0
-                ? "market-change positive"
-                : "market-change negative"
-            }
-          >
-            {change >= 0 ? "+" : ""}
-            {change.toFixed(3)}%
-          </div>
-        </div>
-      </section>
+          <TradingViewChart symbol={instrument.tv} />
+        </section>
 
-      {/* CHART */}
-
-      <section className="dashboard-section chart-section">
-        {loading && !candles.length ? (
-          <div className="chart-card chart-loading">
-            <div className="spinner"></div>
-            Loading live market data...
-          </div>
-        ) : (
-          <SignalChart candles={candles} />
-        )}
-
-        {error && (
-          <div className="market-error">
-            <strong>Market Data Error</strong>
-            <span>{error}</span>
+        {marketError && (
+          <div className="connection-state">
+            <span>Market data temporarily unavailable</span>
+            <small>Please check the data connection.</small>
           </div>
         )}
-      </section>
 
-      {/* SIGNAL */}
-
-      <section className="signal-card-section">
-        <div
-          className={`signal-card ${signalClass}`}
-        >
-          <div className="signal-heading">
-            CURRENT SIGNAL
+        {!marketError && loading && (
+          <div className="connection-state">
+            <span>Connecting to live market data...</span>
           </div>
+        )}
 
-          <div className="signal-value">
-            {analysis.signal}
-          </div>
+        <section className="signal-card">
+          <div className="signal-top">
+            <div>
+              <span className="section-label">JIRMAS SIGNAL</span>
+              <h2 className={`signal-${analysis.signal.toLowerCase()}`}>
+                {analysis.signal}
+              </h2>
+            </div>
 
-          <div className="signal-score">
-            <strong>{analysis.score}%</strong>
-            <span>TECHNICAL CONFIRMATION</span>
+            <div className="confidence">
+              <strong>{analysis.score}%</strong>
+              <span>Technical Confirmation</span>
+            </div>
           </div>
 
           <div className="signal-bar">
-            <div
-              style={{
-                width: `${Math.min(
-                  analysis.score,
-                  100
-                )}%`,
-              }}
-            />
+            <div style={{ width: `${analysis.score}%` }} />
           </div>
 
-          <p>{analysis.note}</p>
-        </div>
-      </section>
+          <div className="signal-grid">
+            <div>
+              <span>Trend</span>
+              <strong>{analysis.trend}</strong>
+            </div>
 
-      {/* INDICATORS */}
+            <div>
+              <span>RSI</span>
+              <strong>{analysis.rsi.toFixed(1)}</strong>
+            </div>
 
-      <section className="dashboard-section">
-        <div className="section-label">
-          TECHNICAL INDICATORS
-        </div>
+            <div>
+              <span>Stochastic</span>
+              <strong>{analysis.stochastic.toFixed(1)}</strong>
+            </div>
 
-        <div className="indicators-grid">
-
-          <div className="indicator-card">
-            <span>RSI 14</span>
-            <strong>
-              {rsi ? rsi.toFixed(1) : "--"}
-            </strong>
-            <small
-              className={
-                rsi > 55
-                  ? "bullish"
-                  : rsi < 45
-                  ? "bearish"
-                  : "neutral"
-              }
-            >
-              {rsi > 55
-                ? "BULLISH"
-                : rsi < 45
-                ? "BEARISH"
-                : "NEUTRAL"}
-            </small>
+            <div>
+              <span>ATR</span>
+              <strong>
+                {analysis.atr
+                  ? analysis.atr.toFixed(priceDigits)
+                  : "--"}
+              </strong>
+            </div>
           </div>
+        </section>
 
-          <div className="indicator-card">
-            <span>EMA 20</span>
-            <strong>
-              {formatPrice(ema20)}
-            </strong>
-            <small>FAST TREND</small>
-          </div>
-
-          <div className="indicator-card">
-            <span>EMA 50</span>
-            <strong>
-              {formatPrice(ema50)}
-            </strong>
-            <small>SLOW TREND</small>
-          </div>
-
-          <div className="indicator-card">
-            <span>ATR 14</span>
-            <strong>
-              {formatPrice(atr)}
-            </strong>
-            <small>VOLATILITY</small>
-          </div>
-
-          <div className="indicator-card">
-            <span>STOCH</span>
-            <strong>
-              {stoch ? stoch.toFixed(1) : "--"}
-            </strong>
-            <small>
-              {stoch > 50
-                ? "BULLISH"
-                : "BEARISH"}
-            </small>
-          </div>
-
-          <div className="indicator-card">
-            <span>TREND</span>
-            <strong>
-              {ema20 && ema50
-                ? ema20 > ema50
-                  ? "UP"
-                  : "DOWN"
-                : "--"}
-            </strong>
-            <small>
-              {ema20 && ema50
-                ? ema20 > ema50
-                  ? "BULLISH"
-                  : "BEARISH"
-                : "WAIT"}
-            </small>
-          </div>
-
-        </div>
-      </section>
-
-      {/* LEVELS */}
-
-      <section className="dashboard-section">
-        <div className="section-label">
-          KEY LEVELS
-        </div>
-
-        <div className="levels-grid">
-
-          <div className="level-card support">
+        <section className="levels-card">
+          <div>
             <span>SUPPORT</span>
             <strong>
-              {formatPrice(support)}
+              {analysis.support
+                ? analysis.support.toFixed(priceDigits)
+                : "--"}
             </strong>
           </div>
 
-          <div className="level-card resistance">
+          <div>
             <span>RESISTANCE</span>
             <strong>
-              {formatPrice(resistance)}
+              {analysis.resistance
+                ? analysis.resistance.toFixed(priceDigits)
+                : "--"}
             </strong>
           </div>
 
-        </div>
-      </section>
-
-      {/* TRADE TIMING */}
-
-      <section className="dashboard-section">
-        <div className="section-label">
-          SIGNAL TIMING
-        </div>
-
-        <div className="timing-card">
-
           <div>
-            <span>ENTRY</span>
+            <span>EMA 20</span>
             <strong>
-              {analysis.signal === "WAIT"
-                ? "WAIT"
-                : "NEXT CANDLE"}
+              {analysis.ema20
+                ? analysis.ema20.toFixed(priceDigits)
+                : "--"}
             </strong>
           </div>
 
           <div>
-            <span>EXPIRY</span>
-            <strong>1 MIN</strong>
+            <span>EMA 50</span>
+            <strong>
+              {analysis.ema50
+                ? analysis.ema50.toFixed(priceDigits)
+                : "--"}
+            </strong>
+          </div>
+        </section>
+
+        <section className="timing-card">
+          <div>
+            <span>TIMEFRAME</span>
+            <strong>1 MINUTE</strong>
           </div>
 
           <div>
-            <span>TIMEZONE</span>
-            <strong>UTC+6</strong>
+            <span>DATA STATUS</span>
+            <strong>
+              {marketError ? "OFFLINE" : loading ? "CONNECTING" : "LIVE"}
+            </strong>
           </div>
 
+          <div>
+            <span>LAST UPDATE</span>
+            <strong>
+              {lastUpdate
+                ? lastUpdate.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })
+                : "--"}
+            </strong>
+          </div>
+        </section>
+
+        <div className="dashboard-actions">
+          <a href={SUPPORT_URL} target="_blank" rel="noreferrer">
+            <TelegramIcon />
+            Support
+          </a>
+
+          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer">
+            <TelegramIcon />
+            Trade Zone
+          </a>
         </div>
+
+        <p className="disclaimer">
+          Jirmas Signals provides technical market analysis only. Signals
+          are not guaranteed and are not financial advice. Always manage
+          your risk responsibly.
+        </p>
       </section>
-
-      {/* DISCLAIMER */}
-
-      <div className="dashboard-note">
-        Technical confirmation is an analytical score,
-        not a guaranteed win probability. Always manage
-        risk carefully.
-      </div>
-
-      {/* ACTIONS */}
-
-      <div className="dashboard-actions">
-
-        <a
-          href={SUPPORT_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="action-button support"
-        >
-          <TelegramIcon />
-          Support
-        </a>
-
-        <a
-          href={COMMUNITY_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="action-button community-action"
-        >
-          <TelegramIcon />
-          Community
-        </a>
-
-      </div>
-
-    </div>
+    </main>
   );
 }
 
-function App() {
+export default function App() {
   const [session, setSession] = useState(null);
-  const [access, setAccess] = useState(false);
+  const [access, setAccess] = useState(null);
   const [checking, setChecking] = useState(true);
 
   async function checkAccess(userId) {
+    if (!userId) {
+      setAccess(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from("user_access")
       .select("is_active")
@@ -956,89 +748,98 @@ function App() {
       .maybeSingle();
 
     if (error) {
-      console.error(error);
+      console.error("Access check error:", error);
       setAccess(false);
-    } else {
-      setAccess(Boolean(data?.is_active));
+      return;
     }
 
-    setChecking(false);
+    setAccess(Boolean(data?.is_active));
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    let mounted = true;
+
+    async function loadSession() {
+      const { data } = await supabase.auth.getSession();
+
+      if (!mounted) return;
+
       setSession(data.session);
 
       if (data.session?.user) {
-        checkAccess(data.session.user.id);
+        await checkAccess(data.session.user.id);
       } else {
-        setChecking(false);
+        setAccess(false);
       }
-    });
+
+      setChecking(false);
+    }
+
+    loadSession();
 
     const {
-      data: listener,
-    } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession);
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      if (!mounted) return;
 
-        if (newSession?.user) {
-          checkAccess(newSession.user.id);
-        } else {
-          setAccess(false);
-          setChecking(false);
-        }
+      setSession(newSession);
+
+      if (newSession?.user) {
+        await checkAccess(newSession.user.id);
+      } else {
+        setAccess(false);
       }
-    );
+
+      setChecking(false);
+    });
 
     return () => {
-      listener.subscription.unsubscribe();
+      mounted = false;
+      subscription.unsubscribe();
     };
   }, []);
 
   async function handleGoogleLogin() {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: window.location.origin,
       },
     });
+
+    if (error) {
+      console.error(error);
+      alert("Google login failed. Please try again.");
+    }
   }
 
   async function handleLogout() {
     await supabase.auth.signOut();
+    setSession(null);
+    setAccess(false);
   }
 
   if (checking) {
     return (
       <div className="app-loading">
-        <img src={logo} alt="Jirmas" />
-        <div>Loading JIRMAS SIGNALS...</div>
+        <img src={logo} alt="Jirmas Signals" />
+        <span>Loading Jirmas Signals...</span>
       </div>
     );
   }
 
   if (!session) {
-    return (
-      <LoginPage
-        onLogin={handleGoogleLogin}
-      />
-    );
+    return <LoginPage onLogin={handleGoogleLogin} />;
   }
 
   if (!access) {
     return (
       <ActivationScreen
+        email={session.user?.email}
         onLogout={handleLogout}
       />
     );
   }
 
-  return (
-    <Dashboard
-      onLogout={handleLogout}
-    />
-  );
+  return <Dashboard user={session.user} onLogout={handleLogout} />;
 }
-
-export default App;
