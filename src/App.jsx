@@ -1,29 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
 import logo from "./assets/IMG_5520.PNG";
 import "./App.css";
 
-const TELEGRAM_CHANNEL = "https://t.me/jirmastradezone";
-const TELEGRAM_SUPPORT = "https://t.me/Jirmas_Trader";
+const SUPPORT_URL = "https://t.me/Jirmas_Trader";
+const COMMUNITY_URL = "https://t.me/jirmastradezone";
 
 function GoogleIcon() {
   return (
-    <svg className="google-icon-svg" viewBox="0 0 24 24">
+    <svg className="google-icon" viewBox="0 0 24 24">
       <path
         fill="#4285F4"
-        d="M21.35 12.27c0-.72-.06-1.41-.18-2.07H12v3.92h5.23a4.47 4.47 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.92-4.18 2.92-7.24Z"
+        d="M21.35 12.27c0-.72-.06-1.41-.18-2.07H12v3.92h5.24a4.48 4.48 0 0 1-1.94 2.94v2.44h3.14c1.84-1.69 2.91-4.18 2.91-7.23Z"
       />
       <path
         fill="#34A853"
-        d="M12 21.75c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.93-3.31.93-2.54 0-4.7-1.72-5.47-4.03H3.28v2.53A9.75 9.75 0 0 0 12 21.75Z"
+        d="M12 21.75c2.63 0 4.84-.87 6.45-2.35l-3.14-2.44c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.52A9.75 9.75 0 0 0 12 21.75Z"
       />
       <path
         fill="#FBBC05"
-        d="M6.53 13.84A5.86 5.86 0 0 1 6.22 12c0-.64.11-1.26.31-1.84V7.63H3.28A9.74 9.74 0 0 0 2.25 12c0 1.57.38 3.06 1.03 4.37l3.25-2.53Z"
+        d="M6.54 13.85A5.86 5.86 0 0 1 6.23 12c0-.64.11-1.26.31-1.85V7.63H3.3A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.05 4.37l3.24-2.52Z"
       />
       <path
         fill="#EA4335"
-        d="M12 6.13c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.24 14.63 2.25 12 2.25a9.75 9.75 0 0 0-8.72 5.38l3.25 2.53C7.3 7.85 9.46 6.13 12 6.13Z"
+        d="M12 6.12c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.22 14.63 2.25 12 2.25A9.75 9.75 0 0 0 3.3 7.63l3.24 2.52C7.31 7.84 9.46 6.12 12 6.12Z"
       />
     </svg>
   );
@@ -31,169 +31,311 @@ function GoogleIcon() {
 
 function TelegramIcon() {
   return (
-    <svg className="telegram-icon-svg" viewBox="0 0 24 24">
+    <svg className="telegram-icon" viewBox="0 0 24 24">
       <path
         fill="currentColor"
-        d="M21.6 3.2 2.9 10.4c-1.28.51-1.27 1.22-.23 1.54l4.8 1.5 1.84 5.7c.22.61.11.86.74.86.49 0 .7-.22.96-.48l2.32-2.26 4.83 3.57c.89.49 1.53.23 1.75-.82l3.16-14.9c.32-1.27-.48-1.84-1.46-1.41Zm-3.7 3.2-7.95 7.08-.31 3.39-1.47-4.56 9.73-6.13c.43-.27.83-.12.5.22Z"
+        d="M21.4 3.2 18.2 20c-.24 1.18-.87 1.47-1.77.91l-4.86-3.58-2.35 2.26c-.26.26-.48.48-.98.48l.35-4.95 9-8.13c.39-.35-.09-.55-.61-.2L6.05 13.56 1.3 12.07c-1.03-.32-1.05-1.03.22-1.5L20.08 3.3c.87-.32 1.63.2 1.32-.1Z"
       />
     </svg>
   );
 }
 
-function App() {
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+function LoginPage({ onLogin, loading, error }) {
+  return (
+    <main className="login-page">
+      <section className="login-card">
+        <div className="brand">
+          <img src={logo} alt="Jirmas Signals" className="brand-logo" />
+          <h1>JIRMAS SIGNALS</h1>
+          <p>Professional Market Signals</p>
+        </div>
+
+        <button
+          className="google-login-btn"
+          onClick={onLogin}
+          disabled={loading}
+        >
+          <GoogleIcon />
+          <span>{loading ? "Connecting..." : "Continue with Google"}</span>
+        </button>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <div className="login-divider">
+          <span>Need help?</span>
+        </div>
+
+        <a
+          href={SUPPORT_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="telegram-card"
+        >
+          <div className="telegram-circle">
+            <TelegramIcon />
+          </div>
+
+          <div className="telegram-content">
+            <strong>Need Support?</strong>
+            <span>Jirmas Trader</span>
+          </div>
+
+          <span className="arrow">›</span>
+        </a>
+
+        <a
+          href={COMMUNITY_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="telegram-card"
+        >
+          <div className="telegram-circle">
+            <TelegramIcon />
+          </div>
+
+          <div className="telegram-content">
+            <strong>Join Our Community</strong>
+            <span>Jirmas Trade Zone</span>
+          </div>
+
+          <span className="arrow">›</span>
+        </a>
+
+        <p className="login-footer">
+          Secure access powered by JIRMAS SIGNALS
+        </p>
+      </section>
+    </main>
+  );
+}
+
+function Dashboard() {
+  return (
+    <main className="dashboard-preview">
+      <header className="dashboard-header">
+        <div className="dashboard-brand">
+          <img src={logo} alt="Jirmas Signals" />
+          <div>
+            <strong>JIRMAS SIGNALS</strong>
+            <span>LIVE MARKET ANALYSIS</span>
+          </div>
+        </div>
+
+        <div className="live-status">
+          <span /> LIVE
+        </div>
+      </header>
+
+      <div className="dashboard-body">
+        <div className="market-title">
+          <span>EUR/USD</span>
+          <small>1 MINUTE</small>
+        </div>
+
+        <div className="chart-placeholder">
+          <span>LIVE MARKET CHART</span>
+        </div>
+
+        <div className="signal-placeholder">
+          <small>CURRENT SIGNAL</small>
+          <strong>WAIT</strong>
+          <span>Live technical analysis</span>
+        </div>
+
+        <div className="stats-row">
+          <div>
+            <span>RSI</span>
+            <strong>--</strong>
+          </div>
+
+          <div>
+            <span>MACD</span>
+            <strong>--</strong>
+          </div>
+
+          <div>
+            <span>ATR</span>
+            <strong>--</strong>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function ActivationScreen({ onLogout }) {
+  return (
+    <div className="activation-screen">
+      <div className="locked-dashboard">
+        <Dashboard />
+      </div>
+
+      <div className="activation-overlay">
+        <div className="activation-card">
+          <div className="lock-icon">🔒</div>
+
+          <div className="activation-logo">
+            <img src={logo} alt="Jirmas Signals" />
+          </div>
+
+          <h2>Activate Your Access</h2>
+
+          <p className="activation-main">
+            Get Lifetime Access to Jirmas Signals
+          </p>
+
+          <p className="activation-bengali">
+            লাইফটাইম সাবস্ক্রিপশন নিতে আমাদের সাথে যোগাযোগ করুন।
+          </p>
+
+          <div className="lifetime-badge">
+            ✓ One-time lifetime activation
+          </div>
+
+          <a
+            href={SUPPORT_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="activation-button"
+          >
+            <TelegramIcon />
+            Contact Us to Purchase Access
+          </a>
+
+          <a
+            href={COMMUNITY_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="community-link"
+          >
+            Join Jirmas Trade Zone
+          </a>
+
+          <button className="logout-button" onClick={onLogout}>
+            Sign out
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [session, setSession] = useState(null);
+  const [accessActive, setAccessActive] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function checkAccess(userId) {
+    const { data, error: accessError } = await supabase
+      .from("user_access")
+      .select("is_active")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (accessError) {
+      console.error("Access check error:", accessError);
+      setAccessActive(false);
+      return;
+    }
+
+    setAccessActive(data?.is_active === true);
+  }
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function initialize() {
+      const { data, error: sessionError } =
+        await supabase.auth.getSession();
+
+      if (!mounted) return;
+
+      if (sessionError) {
+        setError(sessionError.message);
+      }
+
+      const currentSession = data?.session ?? null;
+
+      setSession(currentSession);
+
+      if (currentSession?.user?.id) {
+        await checkAccess(currentSession.user.id);
+      }
+
+      setLoading(false);
+    }
+
+    initialize();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      setSession(newSession);
+
+      if (newSession?.user?.id) {
+        await checkAccess(newSession.user.id);
+      } else {
+        setAccessActive(false);
+      }
+
+      setLoading(false);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   async function handleGoogleLogin() {
-    setLoading(true);
-    setMessage("");
+    setError("");
+    setLoginLoading(true);
 
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
+    const { error: loginError } =
+      await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: window.location.origin,
         },
       });
 
-      if (error) {
-        setMessage(error.message);
-        setLoading(false);
-      }
-    } catch (error) {
-      setMessage(error.message || "Google login failed.");
-      setLoading(false);
+    if (loginError) {
+      setError(loginError.message);
+      setLoginLoading(false);
     }
   }
 
-  return (
-    <div className="app-shell">
-      <main className="login-wrapper">
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setSession(null);
+    setAccessActive(false);
+  }
 
-        {/* LOGO + BRAND */}
-        <header className="brand">
-          <div className="brand-logo-frame">
-            <img
-              src={logo}
-              alt="Jirmas Trade Zone"
-              className="brand-logo"
-            />
-          </div>
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <img src={logo} alt="Jirmas Signals" />
+        <div className="loading-spinner" />
+        <span>Loading JIRMAS SIGNALS...</span>
+      </div>
+    );
+  }
 
-          <h1>JIRMAS SIGNALS</h1>
-          <p>PROFESSIONAL 1 MIN MARKET SIGNALS</p>
-        </header>
+  if (!session) {
+    return (
+      <LoginPage
+        onLogin={handleGoogleLogin}
+        loading={loginLoading}
+        error={error}
+      />
+    );
+  }
 
-        <section className="login-card">
+  if (!accessActive) {
+    return <ActivationScreen onLogout={handleLogout} />;
+  }
 
-          {/* WELCOME */}
-          <div className="welcome-section">
-            <h2>Welcome Back</h2>
-            <p>Sign in to access Jirmas Signals</p>
-          </div>
-
-          {/* GOOGLE */}
-          <button
-            className="google-login"
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={loading}
-          >
-            <span className="google-logo">
-              <GoogleIcon />
-            </span>
-
-            <span className="google-text">
-              {loading ? "Connecting..." : "Continue with Google"}
-            </span>
-
-            {!loading && <span className="button-arrow">→</span>}
-          </button>
-
-          {message && (
-            <div className="login-error">
-              {message}
-            </div>
-          )}
-
-          {/* DIVIDER */}
-          <div className="divider">
-            <span></span>
-            <b>OR</b>
-            <span></span>
-          </div>
-
-          {/* 1 — SUPPORT FIRST */}
-          <a
-            className="action-card centered-card"
-            href={TELEGRAM_SUPPORT}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="telegram-logo purple">
-              <TelegramIcon />
-            </div>
-
-            <div className="action-content">
-              <div className="action-label">
-                NEED SUPPORT?
-              </div>
-
-              <div className="action-title">
-                Jirmas Trader
-              </div>
-
-              <div className="action-link">
-                Contact Support <span>→</span>
-              </div>
-            </div>
-          </a>
-
-          {/* 2 — JOIN CHANNEL SECOND */}
-          <a
-            className="action-card centered-card"
-            href={TELEGRAM_CHANNEL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="telegram-logo blue">
-              <TelegramIcon />
-            </div>
-
-            <div className="action-content">
-              <div className="action-label">
-                JOIN OUR COMMUNITY
-              </div>
-
-              <div className="action-title">
-                Jirmas Trade Zone
-              </div>
-
-              <div className="action-link">
-                Join Channel <span>→</span>
-              </div>
-            </div>
-          </a>
-
-          {/* SECURITY */}
-          <div className="security">
-            <span>🔒</span>
-            <span>Secure access</span>
-            <i>•</i>
-            <span>Mobile ready</span>
-            <i>•</i>
-            <span>1 MIN</span>
-          </div>
-        </section>
-
-        <footer className="footer">
-          ©️ 2026 JIRMAS SIGNALS
-          <span>•</span>
-          1 MIN SIGNALS
-        </footer>
-      </main>
-    </div>
-  );
+  return <Dashboard />;
 }
-
-export default App;
