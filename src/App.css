@@ -1,1149 +1,947 @@
-/* =========================================================
-   JIRMAS SIGNALS — PROFESSIONAL MOBILE UI
-   ========================================================= */
+import { useEffect, useMemo, useState } from "react";
+import "./App.css";
+import { supabase } from "./lib/supabaseClient";
+import logo from "./assets/IMG_5520.PNG";
 
-:root {
-  font-family:
-    Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+const SUPPORT_URL = "https://t.me/Jirmas_Trader";
+const COMMUNITY_URL = "https://t.me/jirmastradezone";
 
-  color: #f5f7fb;
-  background: #05070c;
+const MARKETS = {
+  Forex: [
+    { name: "EUR/USD", symbol: "EUR/USD", tv: "OANDA:EURUSD" },
+    { name: "GBP/USD", symbol: "GBP/USD", tv: "OANDA:GBPUSD" },
+    { name: "USD/JPY", symbol: "USD/JPY", tv: "OANDA:USDJPY" },
+    { name: "USD/CHF", symbol: "USD/CHF", tv: "OANDA:USDCHF" },
+    { name: "AUD/USD", symbol: "AUD/USD", tv: "OANDA:AUDUSD" },
+    { name: "USD/CAD", symbol: "USD/CAD", tv: "OANDA:USDCAD" },
+    { name: "NZD/USD", symbol: "NZD/USD", tv: "OANDA:NZDUSD" },
+  ],
+  Gold: [
+    { name: "XAU/USD", symbol: "XAU/USD", tv: "OANDA:XAUUSD" },
+  ],
+  Crypto: [
+    { name: "BTC/USD", symbol: "BTC/USD", tv: "OANDA:BTCUSD" },
+    { name: "ETH/USD", symbol: "ETH/USD", tv: "OANDA:ETHUSD" },
+  ],
+  Stocks: [
+    { name: "AAPL", symbol: "AAPL", tv: "NASDAQ:AAPL" },
+    { name: "TSLA", symbol: "TSLA", tv: "NASDAQ:TSLA" },
+    { name: "NVDA", symbol: "NVDA", tv: "NASDAQ:NVDA" },
+    { name: "AMZN", symbol: "AMZN", tv: "NASDAQ:AMZN" },
+  ],
+  Indices: [
+    { name: "S&P 500", symbol: "SPX", tv: "SP:SPX" },
+    { name: "NASDAQ", symbol: "NDX", tv: "NASDAQ:NDX" },
+    { name: "DOW", symbol: "DJI", tv: "DJ:DJI" },
+  ],
+  Commodities: [
+    { name: "BRENT", symbol: "BRENT", tv: "TVC:UKOIL" },
+    { name: "WTI", symbol: "WTI", tv: "TVC:USOIL" },
+  ],
+  ETFs: [
+    { name: "SPY", symbol: "SPY", tv: "AMEX:SPY" },
+    { name: "QQQ", symbol: "QQQ", tv: "NASDAQ:QQQ" },
+  ],
+};
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-
-  --bg: #05070c;
-  --panel: #0b1019;
-  --panel-2: #0f1622;
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #f5f7fb;
-  --muted: #8b96a8;
-  --green: #00f5a0;
-  --green-2: #00c987;
-  --red: #ff426d;
-  --yellow: #ffd166;
-  --blue: #4da3ff;
-  --cyan: #00d9ff;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
-  width: 100%;
-  min-height: 100%;
-  margin: 0;
-}
-
-body {
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at 20% 0%, rgba(0, 217, 255, 0.08), transparent 28%),
-    radial-gradient(circle at 90% 10%, rgba(0, 245, 160, 0.06), transparent 25%),
-    var(--bg);
-  color: var(--text);
-}
-
-/* =========================================================
-   COMMON
-   ========================================================= */
-
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
-}
-
-button {
-  font: inherit;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.app {
-  width: 100%;
-  min-height: 100vh;
-}
-
-.muted {
-  color: var(--muted);
-}
-
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
-.login-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(0, 245, 160, 0.12), transparent 35%),
-    var(--bg);
-}
-
-.login-card {
-  width: 100%;
-  max-width: 430px;
-  padding: 30px 22px;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  background: rgba(11, 16, 25, 0.92);
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.55),
-    0 0 40px rgba(0, 245, 160, 0.04);
-  backdrop-filter: blur(18px);
-}
-
-.login-logo {
-  width: 92px;
-  height: 92px;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto 18px;
-  border-radius: 22px;
-}
-
-.login-title {
-  margin: 0;
-  text-align: center;
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: 0.5px;
-}
-
-.login-subtitle {
-  margin: 8px 0 28px;
-  text-align: center;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.google-login-btn {
-  width: 100%;
-  min-height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 11px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  background: #fff;
-  color: #111;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.google-login-btn:active {
-  transform: scale(0.98);
-}
-
-.telegram-links {
-  display: grid;
-  gap: 12px;
-  margin-top: 22px;
-}
-
-.telegram-link {
-  min-height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border: 1px solid rgba(0, 217, 255, 0.18);
-  border-radius: 14px;
-  background: rgba(0, 217, 255, 0.05);
-  color: #dffaff;
-  font-weight: 800;
-}
-
-.telegram-link span {
-  color: var(--cyan);
-}
-
-/* =========================================================
-   DASHBOARD
-   ========================================================= */
-
-.dashboard {
-  width: 100%;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 14px 14px 32px;
-}
-
-/* =========================================================
-   HEADER
-   ========================================================= */
-
-.dashboard-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-
-  min-height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  margin: -14px -14px 14px;
-  padding: 12px 14px;
-
-  background: rgba(5, 7, 12, 0.9);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(18px);
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.brand-logo {
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-  border-radius: 11px;
-  flex: 0 0 auto;
-}
-
-.brand-text {
-  min-width: 0;
-}
-
-.brand-title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: 0.6px;
-  white-space: nowrap;
-}
-
-.brand-subtitle {
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: 10px;
-  white-space: nowrap;
-}
-
-.live-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  padding: 7px 10px;
-  border: 1px solid rgba(0, 245, 160, 0.2);
-  border-radius: 999px;
-
-  background: rgba(0, 245, 160, 0.07);
-  color: var(--green);
-
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.7px;
-  white-space: nowrap;
-}
-
-.live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 12px var(--green);
-}
-
-/* =========================================================
-   SECTION
-   ========================================================= */
-
-.dashboard-section {
-  margin-bottom: 14px;
-}
-
-.section-label {
-  margin: 0 0 8px 2px;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-/* =========================================================
-   MARKET CATEGORY BOX
-   ========================================================= */
-
-.market-tabs-box {
-  width: 100%;
-  padding: 6px;
-
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--panel);
-
-  overflow: hidden;
-}
-
-.market-tabs {
-  width: 100%;
-  display: flex;
-  gap: 7px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.market-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.market-tab {
-  flex: 0 0 auto;
-
-  min-height: 42px;
-  padding: 0 17px;
-
-  border: 1px solid transparent;
-  border-radius: 11px;
-
-  background: transparent;
-  color: #9da8b8;
-
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.market-tab.active {
-  border-color: rgba(0, 245, 160, 0.2);
-  background: linear-gradient(
-    135deg,
-    rgba(0, 245, 160, 0.16),
-    rgba(0, 217, 255, 0.08)
+function TelegramIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21.9 3.4 18.7 20c-.24 1.17-.88 1.46-1.78.91l-4.9-3.61-2.36 2.27c-.26.26-.48.48-.98.48l.35-5 9.1-8.22c.4-.35-.09-.55-.62-.2L6.25 13.8l-4.83-1.51c-1.05-.33-1.07-1.05.22-1.55L20.5 3.02c.88-.33 1.65.2 1.4.38Z" />
+    </svg>
   );
-  color: var(--green);
-  box-shadow: inset 0 0 18px rgba(0, 245, 160, 0.04);
 }
 
-/* =========================================================
-   MARKET PAIRS
-   ========================================================= */
-
-.market-selector-box {
-  width: 100%;
-  padding: 6px;
-
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--panel);
-
-  overflow: hidden;
-}
-
-.market-selector {
-  display: flex;
-  gap: 8px;
-
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
-
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.market-selector::-webkit-scrollbar {
-  display: none;
-}
-
-.market-button {
-  flex: 0 0 auto;
-
-  min-height: 40px;
-  padding: 0 15px;
-
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 10px;
-
-  background: #101722;
-  color: #aeb8c7;
-
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.market-button.active {
-  border-color: rgba(0, 217, 255, 0.35);
-  background: rgba(0, 217, 255, 0.09);
-  color: var(--cyan);
-}
-
-/* =========================================================
-   MARKET OVERVIEW
-   ========================================================= */
-
-.market-overview {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px;
-
-  padding: 18px;
-
-  border: 1px solid var(--border);
-  border-radius: 18px;
-
-  background:
-    radial-gradient(circle at 0% 0%, rgba(0, 245, 160, 0.07), transparent 45%),
-    var(--panel);
-}
-
-.market-name {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: 0.3px;
-}
-
-.market-timeframe {
-  margin-top: 5px;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 1px;
-}
-
-.market-price-wrap {
-  text-align: right;
-}
-
-.market-price {
-  font-size: 25px;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-}
-
-.market-change {
-  margin-top: 3px;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.market-change.positive {
-  color: var(--green);
-}
-
-.market-change.negative {
-  color: var(--red);
-}
-
-/* =========================================================
-   CHART
-   ========================================================= */
-
-.chart-card {
-  position: relative;
-  min-height: 270px;
-
-  overflow: hidden;
-
-  border: 1px solid var(--border);
-  border-radius: 18px;
-
-  background: #080d15;
-}
-
-.chart-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 11px 13px;
-
-  background: linear-gradient(
-    to bottom,
-    rgba(8, 13, 21, 0.95),
-    rgba(8, 13, 21, 0)
+function GoogleIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 24 24">
+      <path
+        fill="#4285F4"
+        d="M21.35 12.27c0-.71-.06-1.4-.18-2.05H12v3.88h5.24a4.48 4.48 0 0 1-1.94 2.94v2.44h3.14c1.84-1.69 2.91-4.18 2.91-7.21Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 21.5c2.63 0 4.84-.87 6.45-2.35l-3.14-2.44c-.87.58-1.98.93-3.31.93-2.54 0-4.69-1.72-5.46-4.03H3.29v2.52A9.74 9.74 0 0 0 12 21.5Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M6.54 13.61A5.86 5.86 0 0 1 6.23 12c0-.56.11-1.1.31-1.61V7.87H3.29A9.5 9.5 0 0 0 2.25 12c0 1.49.36 2.9 1.04 4.13l3.25-2.52Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 6.36c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.84 3.47 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.71 5.37l3.25 2.52C7.31 8.08 9.46 6.36 12 6.36Z"
+      />
+    </svg>
   );
-
-  pointer-events: none;
 }
 
-.chart-label {
-  color: #aeb8c7;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
+function LoginPage({ onLogin, loading }) {
+  return (
+    <div className="login-page">
+      <div className="login-card">
+        <img src={logo} alt="Jirmas Signals" className="login-logo" />
+
+        <h1 className="login-title">JIRMAS SIGNALS</h1>
+
+        <p className="login-subtitle">
+          Professional Live Market Analysis
+        </p>
+
+        <button
+          className="google-login-btn"
+          onClick={onLogin}
+          disabled={loading}
+        >
+          <GoogleIcon />
+          {loading ? "Connecting..." : "Continue with Google"}
+        </button>
+
+        <div className="telegram-links">
+          <a
+            className="telegram-link"
+            href={SUPPORT_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <TelegramIcon />
+            <span>Need Support? — Jirmas Trader</span>
+          </a>
+
+          <a
+            className="telegram-link"
+            href={COMMUNITY_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <TelegramIcon />
+            <span>Join Our Community — Jirmas Trade Zone</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-.chart-live {
-  color: var(--green);
-  font-size: 9px;
-  font-weight: 900;
+function ActivationScreen({ onLogout }) {
+  return (
+    <div className="activation-page">
+      <div className="activation-card">
+        <div className="activation-icon">🔒</div>
+
+        <img
+          src={logo}
+          alt="Jirmas Signals"
+          className="brand-logo"
+          style={{ width: 72, height: 72, margin: "0 auto 15px" }}
+        />
+
+        <h1 className="activation-title">Activate Your Access</h1>
+
+        <p className="activation-subtitle">
+          Get Lifetime Access to Jirmas Signals.
+          <br />
+          লাইফটাইম সাবস্ক্রিপশন নিতে আমাদের সাথে যোগাযোগ করুন।
+        </p>
+
+        <a
+          className="activation-button"
+          href={SUPPORT_URL}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <TelegramIcon />
+          Contact Jirmas Trader
+        </a>
+
+        <a
+          className="activation-community"
+          href={COMMUNITY_URL}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Join Jirmas Trade Zone
+        </a>
+
+        <div className="activation-note">
+          One-time lifetime activation
+          <br />
+          Contact us to purchase access
+        </div>
+
+        <button
+          className="action-button logout"
+          onClick={onLogout}
+          style={{ width: "100%", marginTop: 18 }}
+        >
+          Sign Out
+        </button>
+      </div>
+    </div>
+  );
 }
 
-.chart-svg {
-  display: block;
-  width: 100%;
-  height: 270px;
-}
+function calculateEMA(values, period) {
+  if (!values.length) return null;
 
-/* =========================================================
-   SIGNAL CARD
-   ========================================================= */
+  const multiplier = 2 / (period + 1);
+  let ema = values[0];
 
-.signal-card {
-  position: relative;
-  overflow: hidden;
-
-  padding: 20px;
-
-  border: 1px solid var(--border);
-  border-radius: 20px;
-
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.04), transparent 45%),
-    var(--panel);
-
-  text-align: center;
-}
-
-.signal-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-.signal-card.buy {
-  border-color: rgba(0, 245, 160, 0.28);
-  box-shadow: 0 0 35px rgba(0, 245, 160, 0.07);
-}
-
-.signal-card.sell {
-  border-color: rgba(255, 66, 109, 0.28);
-  box-shadow: 0 0 35px rgba(255, 66, 109, 0.07);
-}
-
-.signal-card.wait {
-  border-color: rgba(255, 209, 102, 0.2);
-}
-
-.signal-title {
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 1.3px;
-  text-transform: uppercase;
-}
-
-.signal-value {
-  margin-top: 7px;
-
-  font-size: 38px;
-  line-height: 1;
-  font-weight: 1000;
-  letter-spacing: 1px;
-}
-
-.signal-card.buy .signal-value {
-  color: var(--green);
-  text-shadow: 0 0 24px rgba(0, 245, 160, 0.3);
-}
-
-.signal-card.sell .signal-value {
-  color: var(--red);
-  text-shadow: 0 0 24px rgba(255, 66, 109, 0.3);
-}
-
-.signal-card.wait .signal-value {
-  color: var(--yellow);
-}
-
-.signal-confidence {
-  margin-top: 12px;
-}
-
-.confidence-number {
-  font-size: 27px;
-  font-weight: 950;
-}
-
-.confidence-label {
-  margin-left: 5px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.confidence-bar {
-  height: 7px;
-  margin-top: 10px;
-
-  overflow: hidden;
-
-  border-radius: 999px;
-  background: #171e29;
-}
-
-.confidence-fill {
-  height: 100%;
-  border-radius: inherit;
-  transition: width 0.4s ease;
-}
-
-.signal-card.buy .confidence-fill {
-  background: linear-gradient(90deg, var(--green-2), var(--green));
-}
-
-.signal-card.sell .confidence-fill {
-  background: linear-gradient(90deg, #ff315f, var(--red));
-}
-
-.signal-card.wait .confidence-fill {
-  background: linear-gradient(90deg, #d6a62f, var(--yellow));
-}
-
-.signal-note {
-  margin-top: 12px;
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-/* =========================================================
-   DATA GRID
-   ========================================================= */
-
-.data-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.data-card {
-  min-width: 0;
-  padding: 14px;
-
-  border: 1px solid var(--border);
-  border-radius: 16px;
-
-  background: var(--panel);
-}
-
-.data-card-label {
-  color: var(--muted);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.data-card-value {
-  margin-top: 7px;
-
-  font-size: 17px;
-  font-weight: 900;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.data-card-value.green {
-  color: var(--green);
-}
-
-.data-card-value.red {
-  color: var(--red);
-}
-
-.data-card-value.yellow {
-  color: var(--yellow);
-}
-
-.data-card-value.blue {
-  color: var(--blue);
-}
-
-/* =========================================================
-   INDICATORS
-   ========================================================= */
-
-.indicators-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 9px;
-}
-
-.indicator-card {
-  min-width: 0;
-
-  padding: 13px 9px;
-
-  border: 1px solid var(--border);
-  border-radius: 14px;
-
-  background: var(--panel);
-  text-align: center;
-}
-
-.indicator-name {
-  color: var(--muted);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 0.6px;
-}
-
-.indicator-value {
-  margin-top: 6px;
-  font-size: 15px;
-  font-weight: 900;
-}
-
-.indicator-status {
-  margin-top: 4px;
-  font-size: 9px;
-  font-weight: 800;
-}
-
-.indicator-status.bullish {
-  color: var(--green);
-}
-
-.indicator-status.bearish {
-  color: var(--red);
-}
-
-.indicator-status.neutral {
-  color: var(--yellow);
-}
-
-/* =========================================================
-   LEVELS
-   ========================================================= */
-
-.levels-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.level-card {
-  padding: 15px;
-
-  border: 1px solid var(--border);
-  border-radius: 16px;
-
-  background: var(--panel);
-}
-
-.level-card.support {
-  border-color: rgba(0, 245, 160, 0.15);
-}
-
-.level-card.resistance {
-  border-color: rgba(255, 66, 109, 0.15);
-}
-
-.level-label {
-  color: var(--muted);
-  font-size: 9px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-}
-
-.level-value {
-  margin-top: 6px;
-  font-size: 17px;
-  font-weight: 900;
-}
-
-.support .level-value {
-  color: var(--green);
-}
-
-.resistance .level-value {
-  color: var(--red);
-}
-
-/* =========================================================
-   TIMING
-   ========================================================= */
-
-.timing-card {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-
-  border: 1px solid var(--border);
-  border-radius: 16px;
-
-  overflow: hidden;
-  background: var(--panel);
-}
-
-.timing-item {
-  padding: 14px 8px;
-  text-align: center;
-}
-
-.timing-item + .timing-item {
-  border-left: 1px solid var(--border);
-}
-
-.timing-label {
-  color: var(--muted);
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-}
-
-.timing-value {
-  margin-top: 6px;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-/* =========================================================
-   ERROR / LOADING
-   ========================================================= */
-
-.market-error {
-  margin-top: 10px;
-  padding: 11px 13px;
-
-  border: 1px solid rgba(255, 66, 109, 0.2);
-  border-radius: 12px;
-
-  background: rgba(255, 66, 109, 0.06);
-  color: #ff91a9;
-
-  font-size: 11px;
-  line-height: 1.5;
-  word-break: break-word;
-}
-
-.loading-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 120px;
-
-  border: 1px solid var(--border);
-  border-radius: 16px;
-
-  background: var(--panel);
-  color: var(--muted);
-
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.loading-dot {
-  width: 7px;
-  height: 7px;
-  margin-right: 8px;
-
-  border-radius: 50%;
-  background: var(--cyan);
-  box-shadow: 0 0 14px var(--cyan);
-
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: scale(0.85);
+  for (let i = 1; i < values.length; i++) {
+    ema = (values[i] - ema) * multiplier + ema;
   }
 
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  return ema;
 }
 
-/* =========================================================
-   FOOTER ACTIONS
-   ========================================================= */
+function calculateRSI(values, period = 14) {
+  if (values.length < period + 1) return null;
 
-.dashboard-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 16px;
+  let gains = 0;
+  let losses = 0;
+
+  for (let i = 1; i <= period; i++) {
+    const change = values[i] - values[i - 1];
+
+    if (change >= 0) gains += change;
+    else losses += Math.abs(change);
+  }
+
+  let avgGain = gains / period;
+  let avgLoss = losses / period;
+
+  for (let i = period + 1; i < values.length; i++) {
+    const change = values[i] - values[i - 1];
+    const gain = Math.max(change, 0);
+    const loss = Math.max(-change, 0);
+
+    avgGain = (avgGain * (period - 1) + gain) / period;
+    avgLoss = (avgLoss * (period - 1) + loss) / period;
+  }
+
+  if (avgLoss === 0) return 100;
+
+  const rs = avgGain / avgLoss;
+  return 100 - 100 / (1 + rs);
 }
 
-.action-button {
-  min-height: 48px;
+function calculateATR(candles, period = 14) {
+  if (candles.length < period + 1) return null;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  const trs = [];
 
-  border: 1px solid var(--border);
-  border-radius: 13px;
+  for (let i = 1; i < candles.length; i++) {
+    const high = Number(candles[i].high);
+    const low = Number(candles[i].low);
+    const prevClose = Number(candles[i - 1].close);
 
-  background: var(--panel);
-  color: #cbd3df;
+    trs.push(
+      Math.max(
+        high - low,
+        Math.abs(high - prevClose),
+        Math.abs(low - prevClose)
+      )
+    );
+  }
 
-  font-size: 12px;
-  font-weight: 900;
+  const recent = trs.slice(-period);
 
-  cursor: pointer;
+  return recent.reduce((a, b) => a + b, 0) / recent.length;
 }
 
-.action-button.support {
-  border-color: rgba(0, 217, 255, 0.18);
-  color: var(--cyan);
+function getSignal(candles) {
+  if (candles.length < 60) {
+    return {
+      signal: "WAIT",
+      confidence: 0,
+      note: "Waiting for sufficient market data",
+    };
+  }
+
+  const closes = candles.map((c) => Number(c.close));
+
+  const ema20 = calculateEMA(closes, 20);
+  const ema50 = calculateEMA(closes, 50);
+  const rsi = calculateRSI(closes, 14);
+
+  const last = candles[candles.length - 1];
+  const previous = candles[candles.length - 2];
+
+  let buy = 0;
+  let sell = 0;
+
+  if (ema20 > ema50) buy += 25;
+  if (ema20 < ema50) sell += 25;
+
+  if (rsi > 50 && rsi < 70) buy += 20;
+  if (rsi < 50 && rsi > 30) sell += 20;
+
+  if (Number(last.close) > Number(last.open)) buy += 20;
+  if (Number(last.close) < Number(last.open)) sell += 20;
+
+  if (Number(last.close) > Number(previous.close)) buy += 15;
+  if (Number(last.close) < Number(previous.close)) sell += 15;
+
+  if (Number(last.high) > Number(previous.high)) buy += 10;
+  if (Number(last.low) < Number(previous.low)) sell += 10;
+
+  const total = Math.max(buy, sell);
+  const confidence = Math.min(100, total);
+
+  if (
+    confidence >= 70 &&
+    buy >= 70 &&
+    buy > sell &&
+    buy - sell >= 15
+  ) {
+    return {
+      signal: "BUY",
+      confidence,
+      note: "Bullish technical confirmation",
+    };
+  }
+
+  if (
+    confidence >= 70 &&
+    sell >= 70 &&
+    sell > buy &&
+    sell - buy >= 15
+  ) {
+    return {
+      signal: "SELL",
+      confidence,
+      note: "Bearish technical confirmation",
+    };
+  }
+
+  return {
+    signal: "WAIT",
+    confidence,
+    note: "Market conditions are not strong enough",
+  };
 }
 
-.action-button.logout {
-  border-color: rgba(255, 66, 109, 0.15);
-  color: #ff8ca4;
+function MarketChart({ candles }) {
+  if (!candles.length) {
+    return (
+      <div className="loading-card">
+        <span className="loading-dot" />
+        WAITING FOR MARKET DATA...
+      </div>
+    );
+  }
+
+  const visible = candles.slice(-50);
+
+  const highs = visible.map((c) => Number(c.high));
+  const lows = visible.map((c) => Number(c.low));
+
+  const max = Math.max(...highs);
+  const min = Math.min(...lows);
+
+  const width = 900;
+  const height = 330;
+  const top = 30;
+  const bottom = 25;
+
+  const range = max - min || 1;
+  const step = width / visible.length;
+
+  const y = (price) =>
+    top + ((max - price) / range) * (height - top - bottom);
+
+  return (
+    <div className="chart-card">
+      <div className="chart-header">
+        <span className="chart-label">LIVE CANDLE CHART</span>
+        <span className="chart-live">● LIVE</span>
+      </div>
+
+      <svg
+        className="chart-svg"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+      >
+        {visible.map((candle, index) => {
+          const open = Number(candle.open);
+          const close = Number(candle.close);
+          const high = Number(candle.high);
+          const low = Number(candle.low);
+
+          const x = index * step + step / 2;
+          const bodyTop = y(Math.max(open, close));
+          const bodyBottom = y(Math.min(open, close));
+          const bodyHeight = Math.max(2, bodyBottom - bodyTop);
+          const bullish = close >= open;
+
+          return (
+            <g key={`${candle.datetime}-${index}`}>
+              <line
+                x1={x}
+                x2={x}
+                y1={y(high)}
+                y2={y(low)}
+                stroke={bullish ? "#00f5a0" : "#ff426d"}
+                strokeWidth="1.5"
+              />
+
+              <rect
+                x={x - Math.max(2, step * 0.28)}
+                y={bodyTop}
+                width={Math.max(4, step * 0.56)}
+                height={bodyHeight}
+                rx="1"
+                fill={bullish ? "#00f5a0" : "#ff426d"}
+              />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
 }
 
-/* =========================================================
-   ACTIVATION SCREEN
-   ========================================================= */
+function Dashboard({ onLogout }) {
+  const [category, setCategory] = useState("Forex");
+  const [market, setMarket] = useState(MARKETS.Forex[0]);
+  const [candles, setCandles] = useState([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-.activation-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  const apiKey = import.meta.env.VITE_TWELVE_DATA_API_KEY;
 
-  padding: 22px 16px;
+  const markets = MARKETS[category] || [];
 
-  background:
-    radial-gradient(circle at 50% 0%, rgba(0, 245, 160, 0.1), transparent 35%),
-    var(--bg);
+  useEffect(() => {
+    if (!markets.find((item) => item.symbol === market.symbol)) {
+      setMarket(markets[0]);
+    }
+  }, [category]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMarket() {
+      if (!apiKey) {
+        setError("Market data API is not configured.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const url =
+          `https://api.twelvedata.com/time_series` +
+          `?symbol=${encodeURIComponent(market.symbol)}` +
+          `&interval=1min` +
+          `&outputsize=120` +
+          `&timezone=UTC` +
+          `&apikey=${encodeURIComponent(apiKey)}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === "error") {
+          throw new Error(data.message || "Market data request failed.");
+        }
+
+        const values = Array.isArray(data.values)
+          ? [...data.values].reverse()
+          : [];
+
+        if (!cancelled) {
+          setCandles(values);
+          setError("");
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.message || "Unable to load market data.");
+          setLoading(false);
+        }
+      }
+    }
+
+    setLoading(true);
+    loadMarket();
+
+    const timer = setInterval(loadMarket, 15000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [market.symbol, apiKey]);
+
+  const analysis = useMemo(() => {
+    return getSignal(candles);
+  }, [candles]);
+
+  const lastCandle = candles[candles.length - 1];
+
+  const price = lastCandle ? Number(lastCandle.close) : null;
+
+  const previousPrice =
+    candles.length > 1 ? Number(candles[candles.length - 2].close) : null;
+
+  const change =
+    price !== null && previousPrice
+      ? ((price - previousPrice) / previousPrice) * 100
+      : null;
+
+  const closes = candles.map((c) => Number(c.close));
+
+  const ema20 = calculateEMA(closes, 20);
+  const ema50 = calculateEMA(closes, 50);
+  const rsi = calculateRSI(closes, 14);
+  const atr = calculateATR(candles, 14);
+
+  const support =
+    candles.length > 10
+      ? Math.min(...candles.slice(-30).map((c) => Number(c.low)))
+      : null;
+
+  const resistance =
+    candles.length > 10
+      ? Math.max(...candles.slice(-30).map((c) => Number(c.high)))
+      : null;
+
+  const signalClass = analysis.signal.toLowerCase();
+
+  return (
+    <div className="dashboard">
+      <header className="dashboard-header">
+        <div className="brand">
+          <img src={logo} alt="Jirmas Signals" className="brand-logo" />
+
+          <div className="brand-text">
+            <h1 className="brand-title">JIRMAS SIGNALS</h1>
+            <div className="brand-subtitle">
+              LIVE MARKET ANALYSIS
+            </div>
+          </div>
+        </div>
+
+        <div className="live-badge">
+          <span className="live-dot" />
+          LIVE
+        </div>
+      </header>
+
+      <section className="dashboard-section">
+        <p className="section-label">Market</p>
+
+        <div className="market-tabs-box">
+          <div className="market-tabs">
+            {Object.keys(MARKETS).map((item) => (
+              <button
+                key={item}
+                className={`market-tab ${
+                  category === item ? "active" : ""
+                }`}
+                onClick={() => setCategory(item)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="dashboard-section">
+        <p className="section-label">Instruments</p>
+
+        <div className="market-selector-box">
+          <div className="market-selector">
+            {markets.map((item) => (
+              <button
+                key={item.symbol}
+                className={`market-button ${
+                  market.symbol === item.symbol ? "active" : ""
+                }`}
+                onClick={() => setMarket(item)}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="dashboard-main-grid">
+        <main>
+          <section className="dashboard-section">
+            <div className="market-overview">
+              <div>
+                <h2 className="market-name">{market.name}</h2>
+
+                <div className="market-timeframe">
+                  1 MINUTE • LIVE
+                </div>
+              </div>
+
+              <div className="market-price-wrap">
+                <div className="market-price">
+                  {price !== null ? price.toFixed(5) : "--"}
+                </div>
+
+                <div
+                  className={`market-change ${
+                    change >= 0 ? "positive" : "negative"
+                  }`}
+                >
+                  {change !== null
+                    ? `${change >= 0 ? "+" : ""}${change.toFixed(3)}%`
+                    : "--"}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="dashboard-section">
+            {loading && candles.length === 0 ? (
+              <div className="loading-card">
+                <span className="loading-dot" />
+                LOADING MARKET DATA...
+              </div>
+            ) : (
+              <MarketChart candles={candles} />
+            )}
+
+            {error && (
+              <div className="market-error">
+                {error}
+              </div>
+            )}
+          </section>
+
+          <section className="dashboard-section">
+            <p className="section-label">Technical Indicators</p>
+
+            <div className="indicators-grid">
+              <div className="indicator-card">
+                <div className="indicator-name">RSI 14</div>
+                <div className="indicator-value">
+                  {rsi !== null ? rsi.toFixed(1) : "--"}
+                </div>
+                <div
+                  className={`indicator-status ${
+                    rsi > 50 ? "bullish" : rsi < 50 ? "bearish" : "neutral"
+                  }`}
+                >
+                  {rsi > 70
+                    ? "OVERBOUGHT"
+                    : rsi < 30
+                    ? "OVERSOLD"
+                    : rsi > 50
+                    ? "BULLISH"
+                    : "BEARISH"}
+                </div>
+              </div>
+
+              <div className="indicator-card">
+                <div className="indicator-name">MACD</div>
+                <div className="indicator-value">
+                  {ema20 !== null && ema50 !== null
+                    ? (ema20 - ema50).toFixed(5)
+                    : "--"}
+                </div>
+                <div
+                  className={`indicator-status ${
+                    ema20 > ema50 ? "bullish" : "bearish"
+                  }`}
+                >
+                  {ema20 > ema50 ? "BULLISH" : "BEARISH"}
+                </div>
+              </div>
+
+              <div className="indicator-card">
+                <div className="indicator-name">ATR 14</div>
+                <div className="indicator-value">
+                  {atr !== null ? atr.toFixed(5) : "--"}
+                </div>
+                <div className="indicator-status neutral">
+                  VOLATILITY
+                </div>
+              </div>
+
+              <div className="indicator-card">
+                <div className="indicator-name">EMA 20</div>
+                <div className="indicator-value">
+                  {ema20 !== null ? ema20.toFixed(5) : "--"}
+                </div>
+                <div className="indicator-status bullish">
+                  FAST
+                </div>
+              </div>
+
+              <div className="indicator-card">
+                <div className="indicator-name">EMA 50</div>
+                <div className="indicator-value">
+                  {ema50 !== null ? ema50.toFixed(5) : "--"}
+                </div>
+                <div className="indicator-status neutral">
+                  TREND
+                </div>
+              </div>
+
+              <div className="indicator-card">
+                <div className="indicator-name">STOCH</div>
+                <div className="indicator-value">
+                  {rsi !== null ? rsi.toFixed(0) : "--"}
+                </div>
+                <div className="indicator-status neutral">
+                  MOMENTUM
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="dashboard-section">
+            <p className="section-label">Market Levels</p>
+
+            <div className="levels-grid">
+              <div className="level-card support">
+                <div className="level-label">Support</div>
+                <div className="level-value">
+                  {support !== null ? support.toFixed(5) : "--"}
+                </div>
+              </div>
+
+              <div className="level-card resistance">
+                <div className="level-label">Resistance</div>
+                <div className="level-value">
+                  {resistance !== null ? resistance.toFixed(5) : "--"}
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <aside>
+          <section className="dashboard-section">
+            <div className={`signal-card ${signalClass}`}>
+              <div className="signal-title">
+                Current Signal
+              </div>
+
+              <div className="signal-value">
+                {analysis.signal}
+              </div>
+
+              <div className="signal-confidence">
+                <span className="confidence-number">
+                  {analysis.confidence}%
+                </span>
+
+                <span className="confidence-label">
+                  Technical Confirmation
+                </span>
+
+                <div className="confidence-bar">
+                  <div
+                    className="confidence-fill"
+                    style={{
+                      width: `${analysis.confidence}%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="signal-note">
+                {analysis.note}
+              </div>
+            </div>
+          </section>
+
+          <section className="dashboard-section">
+            <p className="section-label">Trade Timing</p>
+
+            <div className="timing-card">
+              <div className="timing-item">
+                <div className="timing-label">Entry</div>
+                <div className="timing-value">
+                  {analysis.signal}
+                </div>
+              </div>
+
+              <div className="timing-item">
+                <div className="timing-label">Expiry</div>
+                <div className="timing-value">
+                  1 MIN
+                </div>
+              </div>
+
+              <div className="timing-item">
+                <div className="timing-label">Timezone</div>
+                <div className="timing-value">
+                  UTC+6
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="dashboard-section">
+            <div className="data-grid">
+              <div className="data-card">
+                <div className="data-card-label">
+                  Trend
+                </div>
+
+                <div
+                  className={`data-card-value ${
+                    ema20 > ema50 ? "green" : "red"
+                  }`}
+                >
+                  {ema20 > ema50 ? "BULLISH" : "BEARISH"}
+                </div>
+              </div>
+
+              <div className="data-card">
+                <div className="data-card-label">
+                  Momentum
+                </div>
+
+                <div className="data-card-value blue">
+                  {rsi !== null
+                    ? rsi > 50
+                      ? "POSITIVE"
+                      : "NEGATIVE"
+                    : "--"}
+                </div>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <div className="dashboard-actions">
+        <a
+          href={SUPPORT_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="action-button support"
+        >
+          <TelegramIcon />
+          Support
+        </a>
+
+        <button
+          className="action-button logout"
+          onClick={onLogout}
+        >
+          Sign Out
+        </button>
+      </div>
+    </div>
+  );
 }
 
-.activation-card {
-  width: 100%;
-  max-width: 430px;
+export default function App() {
+  const [session, setSession] = useState(null);
+  const [access, setAccess] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loginLoading, setLoginLoading] = useState(false);
 
-  padding: 28px 20px;
+  async function checkAccess(userId) {
+    const { data, error } = await supabase
+      .from("user_access")
+      .select("is_active")
+      .eq("user_id", userId)
+      .maybeSingle();
 
-  border: 1px solid rgba(0, 245, 160, 0.15);
-  border-radius: 24px;
+    if (error) {
+      console.error(error);
+      setAccess(false);
+      return;
+    }
 
-  background: rgba(11, 16, 25, 0.95);
-
-  text-align: center;
-
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
-}
-
-.activation-icon {
-  width: 64px;
-  height: 64px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin: 0 auto 16px;
-
-  border-radius: 18px;
-
-  background: rgba(0, 245, 160, 0.08);
-  border: 1px solid rgba(0, 245, 160, 0.16);
-
-  color: var(--green);
-  font-size: 28px;
-}
-
-.activation-title {
-  margin: 0;
-
-  font-size: 25px;
-  font-weight: 950;
-}
-
-.activation-subtitle {
-  margin: 9px 0 20px;
-
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.activation-button {
-  width: 100%;
-  min-height: 52px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-
-  border: 0;
-  border-radius: 14px;
-
-  background: linear-gradient(135deg, var(--green), #00c98a);
-  color: #03130d;
-
-  font-size: 14px;
-  font-weight: 950;
-
-  cursor: pointer;
-
-  box-shadow: 0 10px 30px rgba(0, 245, 160, 0.15);
-}
-
-.activation-community {
-  display: block;
-
-  margin-top: 12px;
-  padding: 15px;
-
-  border: 1px solid rgba(0, 217, 255, 0.16);
-  border-radius: 14px;
-
-  background: rgba(0, 217, 255, 0.05);
-
-  color: var(--cyan);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.activation-note {
-  margin-top: 17px;
-
-  color: #667285;
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-/* =========================================================
-   DESKTOP
-   ========================================================= */
-
-@media (min-width: 768px) {
-  .dashboard {
-    padding: 20px;
+    setAccess(data?.is_active === true);
   }
 
-  .dashboard-header {
-    margin: -20px -20px 20px;
-    padding: 14px 20px;
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!mounted) return;
+
+      setSession(session);
+
+      if (session?.user?.id) {
+        await checkAccess(session.user.id);
+      }
+
+      setLoading(false);
+    }
+
+    loadSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setSession(session);
+
+      if (session?.user?.id) {
+        await checkAccess(session.user.id);
+      } else {
+        setAccess(false);
+      }
+
+      setLoading(false);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  async function handleGoogleLogin() {
+    setLoginLoading(true);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      console.error(error);
+      setLoginLoading(false);
+      alert(error.message);
+    }
   }
 
-  .dashboard-main-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.8fr);
-    gap: 14px;
-    align-items: start;
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setSession(null);
+    setAccess(false);
   }
 
-  .signal-card {
-    position: sticky;
-    top: 88px;
+  if (loading) {
+    return (
+      <div className="loading-card" style={{ minHeight: "100vh" }}>
+        <span className="loading-dot" />
+        JIRMAS SIGNALS
+      </div>
+    );
   }
 
-  .market-overview {
-    min-height: 96px;
+  if (!session) {
+    return (
+      <LoginPage
+        onLogin={handleGoogleLogin}
+        loading={loginLoading}
+      />
+    );
   }
 
-  .chart-card,
-  .chart-svg {
-    min-height: 390px;
-    height: 390px;
-  }
-}
-
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 380px) {
-  .dashboard {
-    padding-left: 10px;
-    padding-right: 10px;
+  if (!access) {
+    return <ActivationScreen onLogout={handleLogout} />;
   }
 
-  .dashboard-header {
-    margin-left: -10px;
-    margin-right: -10px;
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
-  .brand-title {
-    font-size: 14px;
-  }
-
-  .brand-subtitle {
-    font-size: 9px;
-  }
-
-  .market-name {
-    font-size: 19px;
-  }
-
-  .market-price {
-    font-size: 21px;
-  }
-
-  .signal-value {
-    font-size: 34px;
-  }
-
-  .data-grid {
-    gap: 7px;
-  }
-
-  .data-card {
-    padding: 12px 10px;
-  }
-
-  .indicators-grid {
-    gap: 6px;
-  }
-
-  .indicator-card {
-    padding: 11px 5px;
-  }
-
-  .indicator-value {
-    font-size: 13px;
-  }
-}
-
-/* =========================================================
-   SAFE AREA
-   ========================================================= */
-
-@supports (padding: max(0px)) {
-  .dashboard {
-    padding-bottom: max(32px, env(safe-area-inset-bottom));
-  }
+  return <Dashboard onLogout={handleLogout} />;
 }
