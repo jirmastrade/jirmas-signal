@@ -227,7 +227,9 @@ function TradingViewChart({ symbol }) {
 
   return (
     <div className="chart-box tradingview-chart" ref={containerRef}>
-      <div className="chart-loading">Loading TradingView...</div>
+      <div className="chart-loading">
+        Loading TradingView...
+      </div>
     </div>
   );
 }
@@ -298,7 +300,8 @@ function calculateATR(candles, period = 14) {
   const recent = trs.slice(-period);
 
   return (
-    recent.reduce((sum, value) => sum + value, 0) / recent.length
+    recent.reduce((sum, value) => sum + value, 0) /
+    recent.length
   );
 }
 
@@ -317,7 +320,7 @@ function calculateStochastic(candles, period = 14) {
 }
 
 function analyzeMarket(candles) {
-  if (!candles || candles.length < 30) {
+  if (!candles || candles.length < 50) {
     return {
       signal: "WAIT",
       score: 0,
@@ -390,51 +393,62 @@ function analyzeMarket(candles) {
   };
 }
 
-function formatUTCPlus6(dateValue) {
-  if (!dateValue) return "--";
+function parseMarketDate(value) {
+  if (!value) return null;
 
-  const date = new Date(dateValue);
+  const text = String(value).trim();
 
-  if (Number.isNaN(date.getTime())) return "--";
+  if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(text)) {
+    return new Date(text);
+  }
 
-  const utc = date.getTime() + date.getTimezoneOffset() * 60000;
-  const bd = new Date(utc + 6 * 60 * 60000);
-
-  return bd.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23",
-  });
+  return new Date(text.replace(" ", "T") + "Z");
 }
 
-function formatDateUTCPlus6(dateValue) {
-  if (!dateValue) return "--";
+function formatUTCPlus6(value) {
+  const date =
+    value instanceof Date
+      ? value
+      : parseMarketDate(value);
 
-  const date = new Date(dateValue);
+  if (!date || Number.isNaN(date.getTime())) return "--";
 
-  if (Number.isNaN(date.getTime())) return "--";
+  const utcPlus6 = new Date(
+    date.getTime() + 6 * 60 * 60 * 1000
+  );
 
-  const utc = date.getTime() + date.getTimezoneOffset() * 60000;
-  const bd = new Date(utc + 6 * 60 * 60000);
+  return utcPlus6.toISOString().slice(11, 19);
+}
 
-  return `${bd.getDate().toString().padStart(2, "0")}/${(
-    bd.getMonth() + 1
-  )
-    .toString()
-    .padStart(2, "0")}/${bd.getFullYear()}`;
+function formatPrice(value, symbol) {
+  if (value === null || value === undefined) return "--";
+
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) return "--";
+
+  if (symbol.includes("JPY")) return number.toFixed(3);
+  if (symbol.includes("XAU")) return number.toFixed(2);
+  if (symbol.includes("BTC") || symbol.includes("ETH"))
+    return number.toFixed(2);
+
+  return number.toFixed(5);
 }
 
 function TradingStats({ history }) {
   const total = history.length;
   const wins = history.filter((x) => x.result === "WIN").length;
   const losses = history.filter((x) => x.result === "LOSS").length;
-  const pending = history.filter((x) => x.result === "PENDING").length;
+  const pending = history.filter(
+    (x) => x.result === "PENDING"
+  ).length;
 
   const completed = wins + losses;
 
   const winRate =
-    completed > 0 ? ((wins / completed) * 100).toFixed(1) : "0.0";
+    completed > 0
+      ? ((wins / completed) * 100).toFixed(1)
+      : "0.0";
 
   return (
     <section className="stats-card">
@@ -491,7 +505,7 @@ function SignalHistory({ history }) {
         </div>
       ) : (
         <div className="history-list">
-          {history.slice(0, 20).map((item) => (
+          {history.slice(0, 30).map((item) => (
             <div className="history-row" key={item.id}>
               <div>
                 <strong>{item.symbol}</strong>
@@ -515,14 +529,23 @@ function SignalHistory({ history }) {
               </div>
 
               <div>
-                <span className={`result-${item.result.toLowerCase()}`}>
+                <span
+                  className={`result-${String(
+                    item.result
+                  ).toLowerCase()}`}
+                >
                   {item.result}
                 </span>
 
                 <small>
                   {item.result === "PENDING"
-                    ? `Expiry ${formatUTCPlus6(item.expiry_time)}`
-                    : `Entry ${item.entry_price}`}
+                    ? `Expiry ${formatUTCPlus6(
+                        item.expiry_time
+                      )}`
+                    : `Entry ${formatPrice(
+                        item.entry_price,
+                        item.symbol
+                      )}`}
                 </small>
               </div>
             </div>
@@ -537,6 +560,7 @@ function Dashboard({ user, onLogout }) {
   const categories = Object.keys(MARKETS);
 
   const [category, setCategory] = useState("Forex");
+
   const [instrument, setInstrument] = useState({
     label: "EUR/USD",
     symbol: "EUR/USD",
@@ -550,31 +574,37 @@ function Dashboard({ user, onLogout }) {
   const [history, setHistory] = useState([]);
   const [now, setNow] = useState(new Date());
 
-  const lastProcessedMinute = useRef("");
-  const processingSignal = useRef(false);
+  const lastCandleRef = useRef("");
+  const signalCreatedRef = useRef("");
+  const firstLoadRef = useRef(true);
 
   useEffect(() => {
+    const first = MARKETS[category][0];
+
     setInstrument({
-      label: MARKETS[category][0][0],
-      symbol: MARKETS[category][0][1],
-      tv: MARKETS[category][0][2],
+      label: first[0],
+      symbol: first[1],
+      tv: first[2],
     });
+
+    signalCreatedRef.current = "";
+    lastCandleRef.current = "";
   }, [category]);
 
-  async function loadHistory() {
-    const { data, error } = await supabase
-      .from("signal_history")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(100);
-
-    if (!error) {
-      setHistory(data || []);
-    }
-  }
-
   useEffect(() => {
+    async function loadHistory() {
+      const { data, error } = await supabase
+        .from("signal_history")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (!error) {
+        setHistory(data || []);
+      }
+    }
+
     loadHistory();
   }, [user.id]);
 
@@ -586,85 +616,161 @@ function Dashboard({ user, onLogout }) {
     return () => clearInterval(timer);
   }, []);
 
-  async function saveSignal(signal, entryPrice, entryTime, expiryTime) {
-    if (processingSignal.current) return;
+  async function settleExpiredSignals(parsed) {
+    const currentPending = history.filter(
+      (item) =>
+        item.result === "PENDING" &&
+        item.symbol === instrument.symbol &&
+        new Date(item.expiry_time).getTime() <=
+          Date.now()
+    );
 
-    processingSignal.current = true;
+    if (!currentPending.length) return;
 
-    try {
+    for (const pending of currentPending) {
+      const expiryTime = new Date(
+        pending.expiry_time
+      ).getTime();
+
+      let expiryCandle = null;
+
+      for (const candle of parsed) {
+        const candleTime = parseMarketDate(
+          candle.datetime
+        );
+
+        if (!candleTime) continue;
+
+        if (candleTime.getTime() >= expiryTime) {
+          expiryCandle = candle;
+          break;
+        }
+      }
+
+      if (!expiryCandle) continue;
+
+      const expiryPrice = expiryCandle.open;
+      const entryPrice = Number(pending.entry_price);
+
+      let result = "LOSS";
+
+      if (
+        pending.direction === "BUY" &&
+        expiryPrice > entryPrice
+      ) {
+        result = "WIN";
+      }
+
+      if (
+        pending.direction === "SELL" &&
+        expiryPrice < entryPrice
+      ) {
+        result = "WIN";
+      }
+
       const { data, error } = await supabase
         .from("signal_history")
-        .insert({
-          user_id: user.id,
-          symbol: instrument.symbol,
-          direction: signal.signal,
-          confidence: signal.score,
-          entry_price: entryPrice,
-          expiry_price: null,
-          entry_time: entryTime,
-          expiry_time: expiryTime,
-          result: "PENDING",
+        .update({
+          expiry_price: expiryPrice,
+          result,
         })
+        .eq("id", pending.id)
         .select()
         .single();
 
       if (!error && data) {
-        setHistory((old) => [data, ...old]);
+        setHistory((old) =>
+          old.map((item) =>
+            item.id === data.id ? data : item
+          )
+        );
       }
-    } finally {
-      processingSignal.current = false;
     }
   }
 
-  async function settlePreviousSignal(newCandles) {
-    if (!newCandles.length) return;
+  async function createSignalIfNeeded(
+    parsed,
+    analysis
+  ) {
+    if (
+      analysis.signal === "WAIT" ||
+      analysis.score < 70 ||
+      parsed.length < 3
+    ) {
+      return;
+    }
 
-    const latest = newCandles[newCandles.length - 1];
+    const closedCandle =
+      parsed[parsed.length - 2];
 
-    const pending = history.find(
-      (item) =>
-        item.result === "PENDING" &&
-        item.symbol === instrument.symbol
+    const entryCandle =
+      parsed[parsed.length - 1];
+
+    if (!closedCandle || !entryCandle) return;
+
+    const closedTime = parseMarketDate(
+      closedCandle.datetime
     );
 
-    if (!pending) return;
+    const entryTime = parseMarketDate(
+      entryCandle.datetime
+    );
 
-    const expiryPrice = latest.open;
+    if (!closedTime || !entryTime) return;
 
-    let result = "LOSS";
+    const signalKey =
+      `${instrument.symbol}-${closedCandle.datetime}-${analysis.signal}`;
 
-    if (
-      pending.direction === "BUY" &&
-      expiryPrice > Number(pending.entry_price)
-    ) {
-      result = "WIN";
+    if (signalCreatedRef.current === signalKey) {
+      return;
     }
 
-    if (
-      pending.direction === "SELL" &&
-      expiryPrice < Number(pending.entry_price)
-    ) {
-      result = "WIN";
+    const expiryTime = new Date(
+      entryTime.getTime() + 60 * 1000
+    );
+
+    if (expiryTime.getTime() <= Date.now()) {
+      return;
     }
 
-    if (expiryPrice === Number(pending.entry_price)) {
-      result = "LOSS";
+    const { data: existing } = await supabase
+      .from("signal_history")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("symbol", instrument.symbol)
+      .eq("entry_time", entryTime.toISOString())
+      .maybeSingle();
+
+    if (existing) {
+      signalCreatedRef.current = signalKey;
+      return;
     }
 
     const { data, error } = await supabase
       .from("signal_history")
-      .update({
-        expiry_price: expiryPrice,
-        result,
+      .insert({
+        user_id: user.id,
+        symbol: instrument.symbol,
+        direction: analysis.signal,
+        confidence: analysis.score,
+        entry_price: entryCandle.open,
+        expiry_price: null,
+        entry_time: entryTime.toISOString(),
+        expiry_time: expiryTime.toISOString(),
+        result: "PENDING",
       })
-      .eq("id", pending.id)
       .select()
       .single();
 
     if (!error && data) {
-      setHistory((old) =>
-        old.map((item) => (item.id === data.id ? data : item))
-      );
+      signalCreatedRef.current = signalKey;
+
+      setHistory((old) => [
+        data,
+        ...old.filter(
+          (item) => item.id !== data.id
+        ),
+      ]);
     }
   }
 
@@ -674,12 +780,14 @@ function Dashboard({ user, onLogout }) {
     async function loadMarket() {
       try {
         setLoading(true);
-        setMarketError("");
 
         const response = await fetch(
           `/api/market?symbol=${encodeURIComponent(
             instrument.symbol
-          )}&interval=1min&outputsize=100`
+          )}&interval=1min&outputsize=100`,
+          {
+            cache: "no-store",
+          }
         );
 
         const data = await response.json();
@@ -709,27 +817,36 @@ function Dashboard({ user, onLogout }) {
 
         if (cancelled) return;
 
-        if (parsed.length > 2) {
-          const latestMinute = parsed[parsed.length - 1].datetime;
-
-          if (
-            lastProcessedMinute.current &&
-            latestMinute !== lastProcessedMinute.current
-          ) {
-            await settlePreviousSignal(parsed);
-          }
-
-          lastProcessedMinute.current = latestMinute;
+        if (!parsed.length) {
+          throw new Error(
+            "No market candles received"
+          );
         }
 
         setCandles(parsed);
+        setMarketError("");
         setLastUpdate(new Date());
+
+        const newest =
+          parsed[parsed.length - 1]?.datetime || "";
+
+        if (
+          !firstLoadRef.current &&
+          newest !== lastCandleRef.current
+        ) {
+          await settleExpiredSignals(parsed);
+        }
+
+        lastCandleRef.current = newest;
+        firstLoadRef.current = false;
       } catch (error) {
         if (!cancelled) {
           setMarketError(
             error.message || "Market data unavailable"
           );
-          setCandles([]);
+
+          // IMPORTANT:
+          // Do not delete existing candles on temporary API error.
         }
       } finally {
         if (!cancelled) {
@@ -740,13 +857,13 @@ function Dashboard({ user, onLogout }) {
 
     loadMarket();
 
-    const timer = setInterval(loadMarket, 15000);
+    const timer = setInterval(loadMarket, 60000);
 
     return () => {
       cancelled = true;
       clearInterval(timer);
     };
-  }, [instrument.symbol, history]);
+  }, [instrument.symbol]);
 
   const analysis = useMemo(
     () => analyzeMarket(candles),
@@ -754,44 +871,18 @@ function Dashboard({ user, onLogout }) {
   );
 
   useEffect(() => {
-    if (
-      !candles.length ||
-      analysis.signal === "WAIT" ||
-      analysis.score < 70
-    ) {
-      return;
-    }
+    if (!candles.length) return;
 
-    const current = candles[candles.length - 1];
-
-    if (!current?.datetime) return;
-
-    const entryTime = new Date(current.datetime);
-
-    const expiryTime = new Date(
-      entryTime.getTime() + 60 * 1000
-    );
-
-    const alreadyExists = history.some(
-      (item) =>
-        item.symbol === instrument.symbol &&
-        item.entry_time === entryTime.toISOString()
-    );
-
-    if (alreadyExists) return;
-
-    saveSignal(
-      analysis,
-      current.open,
-      entryTime.toISOString(),
-      expiryTime.toISOString()
+    createSignalIfNeeded(
+      candles,
+      analysis
     );
   }, [
     candles,
     analysis.signal,
     analysis.score,
     instrument.symbol,
-    history,
+    user.id,
   ]);
 
   const currentPrice = candles.length
@@ -804,19 +895,10 @@ function Dashboard({ user, onLogout }) {
       : null;
 
   const priceChange =
-    currentPrice !== null && previousPrice !== null
+    currentPrice !== null &&
+    previousPrice !== null
       ? currentPrice - previousPrice
       : 0;
-
-  const priceDigits =
-    instrument.symbol.includes("JPY")
-      ? 3
-      : instrument.symbol.includes("XAU")
-        ? 2
-        : instrument.symbol.includes("BTC") ||
-            instrument.symbol.includes("ETH")
-          ? 2
-          : 5;
 
   const pendingSignal = history.find(
     (item) =>
@@ -830,15 +912,20 @@ function Dashboard({ user, onLogout }) {
     countdown = Math.max(
       0,
       Math.ceil(
-        (new Date(pendingSignal.expiry_time).getTime() -
+        (new Date(
+          pendingSignal.expiry_time
+        ).getTime() -
           now.getTime()) /
           1000
       )
     );
   }
 
-  const countdownMinutes = Math.floor(countdown / 60);
-  const countdownSeconds = countdown % 60;
+  const countdownMinutes =
+    Math.floor(countdown / 60);
+
+  const countdownSeconds =
+    countdown % 60;
 
   return (
     <main className="dashboard-page">
@@ -854,13 +941,18 @@ function Dashboard({ user, onLogout }) {
 
         <div className="user-area">
           <span>{user?.email}</span>
-          <button onClick={onLogout}>Sign Out</button>
+
+          <button onClick={onLogout}>
+            Sign Out
+          </button>
         </div>
       </header>
 
       <section className="dashboard-content">
         <div className="market-category-box">
-          <div className="section-label">MARKETS</div>
+          <div className="section-label">
+            MARKETS
+          </div>
 
           <div className="horizontal-scroll">
             {categories.map((item) => (
@@ -880,7 +972,9 @@ function Dashboard({ user, onLogout }) {
         </div>
 
         <div className="instrument-box">
-          <div className="section-label">{category}</div>
+          <div className="section-label">
+            {category}
+          </div>
 
           <div className="horizontal-scroll">
             {MARKETS[category].map((item) => (
@@ -907,27 +1001,36 @@ function Dashboard({ user, onLogout }) {
 
         <section className="market-overview">
           <div>
-            <span className="overview-label">MARKET</span>
+            <span className="overview-label">
+              MARKET
+            </span>
+
             <h2>{instrument.label}</h2>
           </div>
 
           <div className="price-area">
-            <span className="overview-label">LIVE PRICE</span>
+            <span className="overview-label">
+              LIVE PRICE
+            </span>
 
             <strong>
-              {currentPrice !== null
-                ? currentPrice.toFixed(priceDigits)
-                : "--"}
+              {formatPrice(
+                currentPrice,
+                instrument.symbol
+              )}
             </strong>
 
             <small
               className={
-                priceChange >= 0 ? "positive" : "negative"
+                priceChange >= 0
+                  ? "positive"
+                  : "negative"
               }
             >
               {currentPrice !== null
-                ? `${priceChange >= 0 ? "+" : ""}${priceChange.toFixed(
-                    priceDigits
+                ? `${priceChange >= 0 ? "+" : ""}${formatPrice(
+                    priceChange,
+                    instrument.symbol
                   )}`
                 : "--"}
             </small>
@@ -937,7 +1040,10 @@ function Dashboard({ user, onLogout }) {
         <section className="chart-section">
           <div className="section-heading">
             <div>
-              <span className="section-label">LIVE CHART</span>
+              <span className="section-label">
+                LIVE CHART
+              </span>
+
               <h3>{instrument.label}</h3>
             </div>
 
@@ -946,13 +1052,20 @@ function Dashboard({ user, onLogout }) {
             </span>
           </div>
 
-          <TradingViewChart symbol={instrument.tv} />
+          <TradingViewChart
+            symbol={instrument.tv}
+          />
         </section>
 
         {marketError && (
           <div className="connection-state">
-            <span>Market data temporarily unavailable</span>
-            <small>Please check the data connection.</small>
+            <span>
+              Market connection temporarily unavailable
+            </span>
+
+            <small>
+              Existing market data is being preserved.
+            </small>
           </div>
         )}
 
@@ -961,7 +1074,9 @@ function Dashboard({ user, onLogout }) {
         <section className="signal-card">
           <div className="signal-top">
             <div>
-              <span className="section-label">JIRMAS SIGNAL</span>
+              <span className="section-label">
+                JIRMAS SIGNAL
+              </span>
 
               <h2
                 className={`signal-${analysis.signal.toLowerCase()}`}
@@ -971,19 +1086,29 @@ function Dashboard({ user, onLogout }) {
             </div>
 
             <div className="confidence">
-              <strong>{analysis.score}%</strong>
-              <span>Technical Confirmation</span>
+              <strong>
+                {analysis.score}%
+              </strong>
+
+              <span>
+                Technical Confirmation
+              </span>
             </div>
           </div>
 
           <div className="signal-bar">
-            <div style={{ width: `${analysis.score}%` }} />
+            <div
+              style={{
+                width: `${analysis.score}%`,
+              }}
+            />
           </div>
 
           {pendingSignal && (
             <div className="signal-timing">
               <div>
                 <span>ENTRY</span>
+
                 <strong>
                   {formatUTCPlus6(
                     pendingSignal.entry_time
@@ -994,6 +1119,7 @@ function Dashboard({ user, onLogout }) {
 
               <div>
                 <span>EXPIRY</span>
+
                 <strong>
                   {formatUTCPlus6(
                     pendingSignal.expiry_time
@@ -1004,9 +1130,15 @@ function Dashboard({ user, onLogout }) {
 
               <div>
                 <span>COUNTDOWN</span>
+
                 <strong>
-                  {String(countdownMinutes).padStart(2, "0")}:
-                  {String(countdownSeconds).padStart(2, "0")}
+                  {String(
+                    countdownMinutes
+                  ).padStart(2, "0")}
+                  :
+                  {String(
+                    countdownSeconds
+                  ).padStart(2, "0")}
                 </strong>
               </div>
             </div>
@@ -1018,7 +1150,10 @@ function Dashboard({ user, onLogout }) {
               <div className="signal-timing">
                 <div>
                   <span>ENTRY</span>
-                  <strong>WAITING FOR NEW CANDLE</strong>
+
+                  <strong>
+                    NEXT VALID CANDLE
+                  </strong>
                 </div>
               </div>
             )}
@@ -1026,12 +1161,16 @@ function Dashboard({ user, onLogout }) {
           <div className="signal-grid">
             <div>
               <span>Trend</span>
-              <strong>{analysis.trend}</strong>
+              <strong>
+                {analysis.trend}
+              </strong>
             </div>
 
             <div>
               <span>RSI</span>
-              <strong>{analysis.rsi.toFixed(1)}</strong>
+              <strong>
+                {analysis.rsi.toFixed(1)}
+              </strong>
             </div>
 
             <div>
@@ -1045,7 +1184,10 @@ function Dashboard({ user, onLogout }) {
               <span>ATR</span>
               <strong>
                 {analysis.atr
-                  ? analysis.atr.toFixed(priceDigits)
+                  ? formatPrice(
+                      analysis.atr,
+                      instrument.symbol
+                    )
                   : "--"}
               </strong>
             </div>
@@ -1055,37 +1197,45 @@ function Dashboard({ user, onLogout }) {
         <section className="levels-card">
           <div>
             <span>SUPPORT</span>
+
             <strong>
-              {analysis.support
-                ? analysis.support.toFixed(priceDigits)
-                : "--"}
+              {formatPrice(
+                analysis.support,
+                instrument.symbol
+              )}
             </strong>
           </div>
 
           <div>
             <span>RESISTANCE</span>
+
             <strong>
-              {analysis.resistance
-                ? analysis.resistance.toFixed(priceDigits)
-                : "--"}
+              {formatPrice(
+                analysis.resistance,
+                instrument.symbol
+              )}
             </strong>
           </div>
 
           <div>
             <span>EMA 20</span>
+
             <strong>
-              {analysis.ema20
-                ? analysis.ema20.toFixed(priceDigits)
-                : "--"}
+              {formatPrice(
+                analysis.ema20,
+                instrument.symbol
+              )}
             </strong>
           </div>
 
           <div>
             <span>EMA 50</span>
+
             <strong>
-              {analysis.ema50
-                ? analysis.ema50.toFixed(priceDigits)
-                : "--"}
+              {formatPrice(
+                analysis.ema50,
+                instrument.symbol
+              )}
             </strong>
           </div>
         </section>
@@ -1105,9 +1255,10 @@ function Dashboard({ user, onLogout }) {
 
           <div>
             <span>DATA STATUS</span>
+
             <strong>
               {marketError
-                ? "OFFLINE"
+                ? "TEMPORARY ERROR"
                 : loading
                   ? "CONNECTING"
                   : "LIVE"}
@@ -1116,6 +1267,7 @@ function Dashboard({ user, onLogout }) {
 
           <div>
             <span>LAST UPDATE</span>
+
             <strong>
               {lastUpdate
                 ? formatUTCPlus6(lastUpdate)
@@ -1145,9 +1297,10 @@ function Dashboard({ user, onLogout }) {
         </div>
 
         <p className="disclaimer">
-          Jirmas Signals provides technical market analysis only.
-          Signals are not guaranteed and are not financial advice.
-          Always manage risk responsibly.
+          Jirmas Signals provides technical market
+          analysis only. Signals are not guaranteed and
+          are not financial advice. Always manage risk
+          responsibly.
         </p>
       </section>
     </main>
@@ -1184,14 +1337,17 @@ export default function App() {
     let mounted = true;
 
     async function loadSession() {
-      const { data } = await supabase.auth.getSession();
+      const { data } =
+        await supabase.auth.getSession();
 
       if (!mounted) return;
 
       setSession(data.session);
 
       if (data.session?.user) {
-        await checkAccess(data.session.user.id);
+        await checkAccess(
+          data.session.user.id
+        );
       } else {
         setAccess(false);
       }
@@ -1210,7 +1366,9 @@ export default function App() {
         setSession(newSession);
 
         if (newSession?.user) {
-          await checkAccess(newSession.user.id);
+          await checkAccess(
+            newSession.user.id
+          );
         } else {
           setAccess(false);
         }
@@ -1226,20 +1384,24 @@ export default function App() {
   }, []);
 
   async function handleGoogleLogin() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
+    const { error } =
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
 
     if (error) {
-      alert("Google login failed. Please try again.");
+      alert(
+        "Google login failed. Please try again."
+      );
     }
   }
 
   async function handleLogout() {
     await supabase.auth.signOut();
+
     setSession(null);
     setAccess(false);
   }
@@ -1248,13 +1410,19 @@ export default function App() {
     return (
       <div className="app-loading">
         <img src={logo} alt="Jirmas Signals" />
-        <span>Loading Jirmas Signals...</span>
+        <span>
+          Loading Jirmas Signals...
+        </span>
       </div>
     );
   }
 
   if (!session) {
-    return <LoginPage onLogin={handleGoogleLogin} />;
+    return (
+      <LoginPage
+        onLogin={handleGoogleLogin}
+      />
+    );
   }
 
   if (!access) {
