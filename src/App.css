@@ -2,21 +2,27 @@
   box-sizing: border-box;
 }
 
-html {
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
   width: 100%;
   min-width: 320px;
+  min-height: 100%;
+}
+
+html {
   font-size: 16px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  margin: 0;
-  width: 100%;
-  min-width: 320px;
   min-height: 100vh;
-  background: #05070c;
-  color: #ffffff;
-  font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;
+  background: #05070c;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 button,
@@ -28,9 +34,7 @@ button {
   cursor: pointer;
 }
 
-/* =========================
-   LOGIN
-========================= */
+/* ================= LOGIN ================= */
 
 .login-page {
   width: 100%;
@@ -40,7 +44,7 @@ button {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at top, #14251f 0%, #05070c 45%),
+    radial-gradient(circle at top, #14251f 0%, #05070c 48%),
     #05070c;
 }
 
@@ -50,8 +54,8 @@ button {
   padding: 30px 22px;
   border: 1px solid #263342;
   border-radius: 24px;
-  background: rgba(12, 17, 25, 0.96);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  background: #0c1119;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
   text-align: center;
 }
 
@@ -80,8 +84,8 @@ button {
   height: 52px;
   border: 0;
   border-radius: 13px;
-  background: #ffffff;
-  color: #111111;
+  background: #fff;
+  color: #111;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -111,11 +115,10 @@ button {
   gap: 8px;
   font-size: 11px;
   font-weight: 700;
+  text-decoration: none;
 }
 
-/* =========================
-   ACTIVATION
-========================= */
+/* ================= ACTIVATION ================= */
 
 .activation-page {
   width: 100%;
@@ -158,6 +161,7 @@ button {
 .activation-button {
   width: 100%;
   height: 50px;
+  border: 0;
   border-radius: 12px;
   background: #00f5a0;
   color: #03120c;
@@ -167,6 +171,7 @@ button {
   gap: 8px;
   font-size: 13px;
   font-weight: 900;
+  text-decoration: none;
 }
 
 .activation-community {
@@ -182,6 +187,7 @@ button {
   justify-content: center;
   font-size: 12px;
   font-weight: 800;
+  text-decoration: none;
 }
 
 .activation-note {
@@ -191,9 +197,7 @@ button {
   line-height: 1.6;
 }
 
-/* =========================
-   DASHBOARD
-========================= */
+/* ================= DASHBOARD ================= */
 
 .dashboard {
   width: 100%;
@@ -271,9 +275,7 @@ button {
   background: #00f5a0;
 }
 
-/* =========================
-   SECTIONS
-========================= */
+/* SECTION */
 
 .dashboard-section {
   width: 100%;
@@ -289,9 +291,7 @@ button {
   text-transform: uppercase;
 }
 
-/* =========================
-   HORIZONTAL MARKET BOX
-========================= */
+/* ================= MARKET TABS ================= */
 
 .market-tabs-box,
 .market-selector-box {
@@ -338,8 +338,8 @@ button {
 }
 
 .market-tab.active {
-  border-color: #146247;
-  background: #092018;
+  background: #10221c;
+  border-color: #164e3d;
   color: #00f5a0;
 }
 
@@ -350,14 +350,12 @@ button {
 }
 
 .market-button.active {
-  border-color: #12617a;
   background: #081c25;
+  border-color: #15546a;
   color: #16d5ff;
 }
 
-/* =========================
-   MARKET OVERVIEW
-========================= */
+/* ================= MARKET ================= */
 
 .market-overview {
   width: 100%;
@@ -408,9 +406,7 @@ button {
   color: #ff426d;
 }
 
-/* =========================
-   CHART
-========================= */
+/* ================= CHART ================= */
 
 .chart-card {
   width: 100%;
@@ -435,8 +431,8 @@ button {
   justify-content: space-between;
   background: linear-gradient(
     to bottom,
-    rgba(8, 13, 20, 0.95),
-    rgba(8, 13, 20, 0)
+    rgba(8,13,20,.95),
+    rgba(8,13,20,0)
   );
 }
 
@@ -481,9 +477,7 @@ button {
   background: #18d5ff;
 }
 
-/* =========================
-   ERROR
-========================= */
+/* ERROR */
 
 .market-error {
   margin-top: 8px;
@@ -497,17 +491,11 @@ button {
   word-break: break-word;
 }
 
-/* =========================
-   MAIN GRID
-========================= */
+/* ================= SIGNAL ================= */
 
 .dashboard-main-grid {
   width: 100%;
 }
-
-/* =========================
-   SIGNAL
-========================= */
 
 .signal-card {
   width: 100%;
@@ -520,20 +508,12 @@ button {
 
 .signal-card.buy {
   border-color: #176247;
-  background: linear-gradient(
-    145deg,
-    #0b1713,
-    #0b1119
-  );
+  background: linear-gradient(145deg,#0b1713,#0b1119);
 }
 
 .signal-card.sell {
   border-color: #64263d;
-  background: linear-gradient(
-    145deg,
-    #190b12,
-    #0b1119
-  );
+  background: linear-gradient(145deg,#190b12,#0b1119);
 }
 
 .signal-card.wait {
@@ -551,7 +531,7 @@ button {
 .signal-value {
   margin: 6px 0;
   font-size: 42px;
-  font-weight: 1000;
+  font-weight: 900;
   letter-spacing: 1px;
 }
 
@@ -614,14 +594,12 @@ button {
   font-size: 10px;
 }
 
-/* =========================
-   INDICATORS
-========================= */
+/* ================= INDICATORS ================= */
 
 .indicators-grid {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3,1fr);
   gap: 7px;
 }
 
@@ -666,9 +644,7 @@ button {
   color: #ffd166;
 }
 
-/* =========================
-   LEVELS
-========================= */
+/* ================= LEVELS ================= */
 
 .levels-grid {
   display: grid;
@@ -712,14 +688,12 @@ button {
   color: #ff426d;
 }
 
-/* =========================
-   TIMING
-========================= */
+/* ================= TIMING ================= */
 
 .timing-card {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3,1fr);
   border: 1px solid #202b39;
   border-radius: 14px;
   background: #0b1119;
@@ -747,9 +721,7 @@ button {
   font-weight: 900;
 }
 
-/* =========================
-   DATA CARDS
-========================= */
+/* ================= DATA ================= */
 
 .data-grid {
   display: grid;
@@ -788,9 +760,7 @@ button {
   color: #18d5ff;
 }
 
-/* =========================
-   BOTTOM ACTIONS
-========================= */
+/* ================= ACTIONS ================= */
 
 .dashboard-actions {
   width: 100%;
@@ -823,9 +793,7 @@ button {
   color: #ff8da8;
 }
 
-/* =========================
-   TABLET / DESKTOP
-========================= */
+/* ================= DESKTOP ================= */
 
 @media (min-width: 768px) {
   .dashboard {
@@ -834,7 +802,7 @@ button {
 
   .dashboard-main-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.75fr);
+    grid-template-columns: minmax(0,1.65fr) minmax(300px,.75fr);
     gap: 14px;
   }
 
@@ -843,9 +811,7 @@ button {
   }
 }
 
-/* =========================
-   SMALL MOBILE
-========================= */
+/* ================= SMALL MOBILE ================= */
 
 @media (max-width: 380px) {
   .dashboard {
