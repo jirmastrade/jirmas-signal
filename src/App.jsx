@@ -8,50 +8,50 @@ const COMMUNITY_URL = "https://t.me/jirmastradezone";
 
 const MARKETS = {
   Forex: [
-    { label: "EUR/USD", symbol: "EUR/USD", tv: "FX:EURUSD" },
-    { label: "GBP/USD", symbol: "GBP/USD", tv: "FX:GBPUSD" },
-    { label: "USD/JPY", symbol: "USD/JPY", tv: "FX:USDJPY" },
-    { label: "USD/CHF", symbol: "USD/CHF", tv: "FX:USDCHF" },
-    { label: "AUD/USD", symbol: "AUD/USD", tv: "FX:AUDUSD" },
-    { label: "USD/CAD", symbol: "USD/CAD", tv: "FX:USDCAD" },
-    { label: "NZD/USD", symbol: "NZD/USD", tv: "FX:NZDUSD" },
-    { label: "EUR/GBP", symbol: "EUR/GBP", tv: "FX:EURGBP" },
+    ["EUR/USD", "EUR/USD", "FX:EURUSD"],
+    ["GBP/USD", "GBP/USD", "FX:GBPUSD"],
+    ["USD/JPY", "USD/JPY", "FX:USDJPY"],
+    ["USD/CHF", "USD/CHF", "FX:USDCHF"],
+    ["AUD/USD", "AUD/USD", "FX:AUDUSD"],
+    ["USD/CAD", "USD/CAD", "FX:USDCAD"],
+    ["NZD/USD", "NZD/USD", "FX:NZDUSD"],
+    ["EUR/GBP", "EUR/GBP", "FX:EURGBP"],
   ],
   Gold: [
-    { label: "XAU/USD", symbol: "XAU/USD", tv: "OANDA:XAUUSD" },
-    { label: "XAG/USD", symbol: "XAG/USD", tv: "OANDA:XAGUSD" },
+    ["XAU/USD", "XAU/USD", "OANDA:XAUUSD"],
+    ["XAG/USD", "XAG/USD", "OANDA:XAGUSD"],
   ],
   Crypto: [
-    { label: "BTC/USD", symbol: "BTC/USD", tv: "COINBASE:BTCUSD" },
-    { label: "ETH/USD", symbol: "ETH/USD", tv: "COINBASE:ETHUSD" },
-    { label: "SOL/USD", symbol: "SOL/USD", tv: "COINBASE:SOLUSD" },
+    ["BTC/USD", "BTC/USD", "COINBASE:BTCUSD"],
+    ["ETH/USD", "ETH/USD", "COINBASE:ETHUSD"],
+    ["SOL/USD", "SOL/USD", "COINBASE:SOLUSD"],
   ],
   Stocks: [
-    { label: "AAPL", symbol: "AAPL", tv: "NASDAQ:AAPL" },
-    { label: "MSFT", symbol: "MSFT", tv: "NASDAQ:MSFT" },
-    { label: "NVDA", symbol: "NVDA", tv: "NASDAQ:NVDA" },
-    { label: "TSLA", symbol: "TSLA", tv: "NASDAQ:TSLA" },
+    ["AAPL", "AAPL", "NASDAQ:AAPL"],
+    ["MSFT", "MSFT", "NASDAQ:MSFT"],
+    ["NVDA", "NVDA", "NASDAQ:NVDA"],
+    ["TSLA", "TSLA", "NASDAQ:TSLA"],
   ],
   Indices: [
-    { label: "S&P 500", symbol: "SPX", tv: "SP:SPX" },
-    { label: "NASDAQ 100", symbol: "NDX", tv: "NASDAQ:NDX" },
-    { label: "DOW", symbol: "DJI", tv: "DJ:DJI" },
+    ["S&P 500", "SPX", "SP:SPX"],
+    ["NASDAQ 100", "NDX", "NASDAQ:NDX"],
+    ["DOW", "DJI", "DJ:DJI"],
   ],
   Commodities: [
-    { label: "WTI Oil", symbol: "WTI", tv: "TVC:USOIL" },
-    { label: "Brent Oil", symbol: "BRENT", tv: "TVC:UKOIL" },
-    { label: "Natural Gas", symbol: "NATGAS", tv: "NYMEX:NG1!" },
+    ["WTI Oil", "WTI", "TVC:USOIL"],
+    ["Brent Oil", "BRENT", "TVC:UKOIL"],
+    ["Natural Gas", "NATGAS", "NYMEX:NG1!"],
   ],
   ETFs: [
-    { label: "SPY", symbol: "SPY", tv: "AMEX:SPY" },
-    { label: "QQQ", symbol: "QQQ", tv: "NASDAQ:QQQ" },
-    { label: "GLD", symbol: "GLD", tv: "AMEX:GLD" },
+    ["SPY", "SPY", "AMEX:SPY"],
+    ["QQQ", "QQQ", "NASDAQ:QQQ"],
+    ["GLD", "GLD", "AMEX:GLD"],
   ],
 };
 
 function TelegramIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
+    <svg viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M21.7 3.2 18.4 20c-.25 1.18-.91 1.47-1.85.92l-5.1-3.76-2.46 2.37c-.27.27-.5.5-1.03.5l.37-5.2 9.47-8.55c.41-.37-.09-.58-.64-.21L5.45 13.55.4 11.97c-1.1-.35-1.12-1.1.23-1.6L20.36 2.8c.91-.34 1.7.21 1.34.4Z"
@@ -62,7 +62,7 @@ function TelegramIcon() {
 
 function GoogleIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
+    <svg viewBox="0 0 24 24">
       <path
         fill="#4285F4"
         d="M21.35 12.27c0-.71-.06-1.39-.18-2.04H12v3.86h5.23a4.47 4.47 0 0 1-1.94 2.93v2.43h3.14c1.84-1.69 2.92-4.18 2.92-7.18Z"
@@ -88,7 +88,6 @@ function LoginPage({ onLogin }) {
     <main className="auth-page">
       <div className="auth-card">
         <img className="auth-logo" src={logo} alt="Jirmas Signals" />
-
         <h1>JIRMAS SIGNALS</h1>
         <p className="auth-subtitle">
           Professional Live Market Analysis
@@ -187,9 +186,10 @@ function TradingViewChart({ symbol }) {
     const wrapper = document.createElement("div");
     wrapper.className = "tradingview-widget-container";
 
-    const chart = document.createElement("div");
-    chart.className = "tradingview-widget-container__widget";
-    wrapper.appendChild(chart);
+    const widget = document.createElement("div");
+    widget.className = "tradingview-widget-container__widget";
+
+    wrapper.appendChild(widget);
 
     const script = document.createElement("script");
     script.src =
@@ -201,7 +201,7 @@ function TradingViewChart({ symbol }) {
       autosize: true,
       symbol,
       interval: "1",
-      timezone: "Asia/Riyadh",
+      timezone: "Etc/UTC",
       theme: "dark",
       style: "1",
       locale: "en",
@@ -238,7 +238,7 @@ function calculateEMA(values, period) {
   const multiplier = 2 / (period + 1);
   let ema = values[0];
 
-  for (let i = 1; i < values.length; i += 1) {
+  for (let i = 1; i < values.length; i++) {
     ema = (values[i] - ema) * multiplier + ema;
   }
 
@@ -251,7 +251,7 @@ function calculateRSI(values, period = 14) {
   let gains = 0;
   let losses = 0;
 
-  for (let i = 1; i <= period; i += 1) {
+  for (let i = 1; i <= period; i++) {
     const change = values[i] - values[i - 1];
 
     if (change >= 0) gains += change;
@@ -261,7 +261,7 @@ function calculateRSI(values, period = 14) {
   let avgGain = gains / period;
   let avgLoss = losses / period;
 
-  for (let i = period + 1; i < values.length; i += 1) {
+  for (let i = period + 1; i < values.length; i++) {
     const change = values[i] - values[i - 1];
     const gain = Math.max(change, 0);
     const loss = Math.max(-change, 0);
@@ -273,6 +273,7 @@ function calculateRSI(values, period = 14) {
   if (avgLoss === 0) return 100;
 
   const rs = avgGain / avgLoss;
+
   return 100 - 100 / (1 + rs);
 }
 
@@ -281,22 +282,24 @@ function calculateATR(candles, period = 14) {
 
   const trs = [];
 
-  for (let i = 1; i < candles.length; i += 1) {
+  for (let i = 1; i < candles.length; i++) {
     const current = candles[i];
     const previous = candles[i - 1];
 
-    const tr = Math.max(
-      current.high - current.low,
-      Math.abs(current.high - previous.close),
-      Math.abs(current.low - previous.close)
+    trs.push(
+      Math.max(
+        current.high - current.low,
+        Math.abs(current.high - previous.close),
+        Math.abs(current.low - previous.close)
+      )
     );
-
-    trs.push(tr);
   }
 
   const recent = trs.slice(-period);
 
-  return recent.reduce((sum, value) => sum + value, 0) / recent.length;
+  return (
+    recent.reduce((sum, value) => sum + value, 0) / recent.length
+  );
 }
 
 function calculateStochastic(candles, period = 14) {
@@ -330,8 +333,8 @@ function analyzeMarket(candles) {
   }
 
   const closes = candles.map((c) => c.close);
-
   const current = closes[closes.length - 1];
+
   const ema20 = calculateEMA(closes, 20);
   const ema50 = calculateEMA(closes, 50);
   const rsi = calculateRSI(closes);
@@ -358,10 +361,8 @@ function analyzeMarket(candles) {
   if (stochastic > 50 && stochastic < 85) buy += 15;
   if (stochastic < 50 && stochastic > 15) sell += 15;
 
-  if (current > support && current < resistance) {
-    if (current > (support + resistance) / 2) buy += 10;
-    else sell += 10;
-  }
+  if (current > (support + resistance) / 2) buy += 10;
+  if (current < (support + resistance) / 2) sell += 10;
 
   const score = Math.max(buy, sell);
 
@@ -389,19 +390,283 @@ function analyzeMarket(candles) {
   };
 }
 
+function formatUTCPlus6(dateValue) {
+  if (!dateValue) return "--";
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) return "--";
+
+  const utc = date.getTime() + date.getTimezoneOffset() * 60000;
+  const bd = new Date(utc + 6 * 60 * 60000);
+
+  return bd.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+}
+
+function formatDateUTCPlus6(dateValue) {
+  if (!dateValue) return "--";
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) return "--";
+
+  const utc = date.getTime() + date.getTimezoneOffset() * 60000;
+  const bd = new Date(utc + 6 * 60 * 60000);
+
+  return `${bd.getDate().toString().padStart(2, "0")}/${(
+    bd.getMonth() + 1
+  )
+    .toString()
+    .padStart(2, "0")}/${bd.getFullYear()}`;
+}
+
+function TradingStats({ history }) {
+  const total = history.length;
+  const wins = history.filter((x) => x.result === "WIN").length;
+  const losses = history.filter((x) => x.result === "LOSS").length;
+  const pending = history.filter((x) => x.result === "PENDING").length;
+
+  const completed = wins + losses;
+
+  const winRate =
+    completed > 0 ? ((wins / completed) * 100).toFixed(1) : "0.0";
+
+  return (
+    <section className="stats-card">
+      <div className="section-heading">
+        <div>
+          <span className="section-label">PERFORMANCE</span>
+          <h3>Trading Results</h3>
+        </div>
+      </div>
+
+      <div className="stats-grid">
+        <div>
+          <span>TOTAL</span>
+          <strong>{total}</strong>
+        </div>
+
+        <div className="stat-win">
+          <span>WIN</span>
+          <strong>{wins}</strong>
+        </div>
+
+        <div className="stat-loss">
+          <span>LOSS</span>
+          <strong>{losses}</strong>
+        </div>
+
+        <div>
+          <span>PENDING</span>
+          <strong>{pending}</strong>
+        </div>
+
+        <div className="stat-rate">
+          <span>WIN RATE</span>
+          <strong>{winRate}%</strong>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SignalHistory({ history }) {
+  return (
+    <section className="history-card">
+      <div className="section-heading">
+        <div>
+          <span className="section-label">HISTORY</span>
+          <h3>Signal History</h3>
+        </div>
+      </div>
+
+      {history.length === 0 ? (
+        <div className="empty-history">
+          No signals recorded yet.
+        </div>
+      ) : (
+        <div className="history-list">
+          {history.slice(0, 20).map((item) => (
+            <div className="history-row" key={item.id}>
+              <div>
+                <strong>{item.symbol}</strong>
+                <small>
+                  {formatUTCPlus6(item.entry_time)} UTC+6
+                </small>
+              </div>
+
+              <div>
+                <span
+                  className={
+                    item.direction === "BUY"
+                      ? "history-buy"
+                      : "history-sell"
+                  }
+                >
+                  {item.direction}
+                </span>
+
+                <small>{item.confidence}%</small>
+              </div>
+
+              <div>
+                <span className={`result-${item.result.toLowerCase()}`}>
+                  {item.result}
+                </span>
+
+                <small>
+                  {item.result === "PENDING"
+                    ? `Expiry ${formatUTCPlus6(item.expiry_time)}`
+                    : `Entry ${item.entry_price}`}
+                </small>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function Dashboard({ user, onLogout }) {
   const categories = Object.keys(MARKETS);
 
   const [category, setCategory] = useState("Forex");
-  const [instrument, setInstrument] = useState(MARKETS.Forex[0]);
+  const [instrument, setInstrument] = useState({
+    label: "EUR/USD",
+    symbol: "EUR/USD",
+    tv: "FX:EURUSD",
+  });
+
   const [candles, setCandles] = useState([]);
   const [marketError, setMarketError] = useState("");
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [now, setNow] = useState(new Date());
+
+  const lastProcessedMinute = useRef("");
+  const processingSignal = useRef(false);
 
   useEffect(() => {
-    setInstrument(MARKETS[category][0]);
+    setInstrument({
+      label: MARKETS[category][0][0],
+      symbol: MARKETS[category][0][1],
+      tv: MARKETS[category][0][2],
+    });
   }, [category]);
+
+  async function loadHistory() {
+    const { data, error } = await supabase
+      .from("signal_history")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    if (!error) {
+      setHistory(data || []);
+    }
+  }
+
+  useEffect(() => {
+    loadHistory();
+  }, [user.id]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  async function saveSignal(signal, entryPrice, entryTime, expiryTime) {
+    if (processingSignal.current) return;
+
+    processingSignal.current = true;
+
+    try {
+      const { data, error } = await supabase
+        .from("signal_history")
+        .insert({
+          user_id: user.id,
+          symbol: instrument.symbol,
+          direction: signal.signal,
+          confidence: signal.score,
+          entry_price: entryPrice,
+          expiry_price: null,
+          entry_time: entryTime,
+          expiry_time: expiryTime,
+          result: "PENDING",
+        })
+        .select()
+        .single();
+
+      if (!error && data) {
+        setHistory((old) => [data, ...old]);
+      }
+    } finally {
+      processingSignal.current = false;
+    }
+  }
+
+  async function settlePreviousSignal(newCandles) {
+    if (!newCandles.length) return;
+
+    const latest = newCandles[newCandles.length - 1];
+
+    const pending = history.find(
+      (item) =>
+        item.result === "PENDING" &&
+        item.symbol === instrument.symbol
+    );
+
+    if (!pending) return;
+
+    const expiryPrice = latest.open;
+
+    let result = "LOSS";
+
+    if (
+      pending.direction === "BUY" &&
+      expiryPrice > Number(pending.entry_price)
+    ) {
+      result = "WIN";
+    }
+
+    if (
+      pending.direction === "SELL" &&
+      expiryPrice < Number(pending.entry_price)
+    ) {
+      result = "WIN";
+    }
+
+    if (expiryPrice === Number(pending.entry_price)) {
+      result = "LOSS";
+    }
+
+    const { data, error } = await supabase
+      .from("signal_history")
+      .update({
+        expiry_price: expiryPrice,
+        result,
+      })
+      .eq("id", pending.id)
+      .select()
+      .single();
+
+    if (!error && data) {
+      setHistory((old) =>
+        old.map((item) => (item.id === data.id ? data : item))
+      );
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -420,7 +685,9 @@ function Dashboard({ user, onLogout }) {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          throw new Error(data.error || "Market data unavailable");
+          throw new Error(
+            data.error || "Market data unavailable"
+          );
         }
 
         const parsed = (data.values || [])
@@ -440,13 +707,28 @@ function Dashboard({ user, onLogout }) {
           )
           .reverse();
 
-        if (!cancelled) {
-          setCandles(parsed);
-          setLastUpdate(new Date());
+        if (cancelled) return;
+
+        if (parsed.length > 2) {
+          const latestMinute = parsed[parsed.length - 1].datetime;
+
+          if (
+            lastProcessedMinute.current &&
+            latestMinute !== lastProcessedMinute.current
+          ) {
+            await settlePreviousSignal(parsed);
+          }
+
+          lastProcessedMinute.current = latestMinute;
         }
+
+        setCandles(parsed);
+        setLastUpdate(new Date());
       } catch (error) {
         if (!cancelled) {
-          setMarketError(error.message || "Market data unavailable");
+          setMarketError(
+            error.message || "Market data unavailable"
+          );
           setCandles([]);
         }
       } finally {
@@ -464,19 +746,62 @@ function Dashboard({ user, onLogout }) {
       cancelled = true;
       clearInterval(timer);
     };
-  }, [instrument.symbol]);
+  }, [instrument.symbol, history]);
 
   const analysis = useMemo(
     () => analyzeMarket(candles),
     [candles]
   );
 
+  useEffect(() => {
+    if (
+      !candles.length ||
+      analysis.signal === "WAIT" ||
+      analysis.score < 70
+    ) {
+      return;
+    }
+
+    const current = candles[candles.length - 1];
+
+    if (!current?.datetime) return;
+
+    const entryTime = new Date(current.datetime);
+
+    const expiryTime = new Date(
+      entryTime.getTime() + 60 * 1000
+    );
+
+    const alreadyExists = history.some(
+      (item) =>
+        item.symbol === instrument.symbol &&
+        item.entry_time === entryTime.toISOString()
+    );
+
+    if (alreadyExists) return;
+
+    saveSignal(
+      analysis,
+      current.open,
+      entryTime.toISOString(),
+      expiryTime.toISOString()
+    );
+  }, [
+    candles,
+    analysis.signal,
+    analysis.score,
+    instrument.symbol,
+    history,
+  ]);
+
   const currentPrice = candles.length
     ? candles[candles.length - 1].close
     : null;
 
   const previousPrice =
-    candles.length > 1 ? candles[candles.length - 2].close : null;
+    candles.length > 1
+      ? candles[candles.length - 2].close
+      : null;
 
   const priceChange =
     currentPrice !== null && previousPrice !== null
@@ -484,18 +809,43 @@ function Dashboard({ user, onLogout }) {
       : 0;
 
   const priceDigits =
-    instrument.symbol.includes("JPY") || instrument.symbol.includes("XAU")
-      ? 2
-      : instrument.symbol.includes("BTC") ||
-          instrument.symbol.includes("ETH")
+    instrument.symbol.includes("JPY")
+      ? 3
+      : instrument.symbol.includes("XAU")
         ? 2
-        : 5;
+        : instrument.symbol.includes("BTC") ||
+            instrument.symbol.includes("ETH")
+          ? 2
+          : 5;
+
+  const pendingSignal = history.find(
+    (item) =>
+      item.result === "PENDING" &&
+      item.symbol === instrument.symbol
+  );
+
+  let countdown = 0;
+
+  if (pendingSignal) {
+    countdown = Math.max(
+      0,
+      Math.ceil(
+        (new Date(pendingSignal.expiry_time).getTime() -
+          now.getTime()) /
+          1000
+      )
+    );
+  }
+
+  const countdownMinutes = Math.floor(countdown / 60);
+  const countdownSeconds = countdown % 60;
 
   return (
     <main className="dashboard-page">
       <header className="dashboard-header">
         <div className="brand-area">
           <img src={logo} alt="Jirmas Signals" />
+
           <div>
             <strong>JIRMAS SIGNALS</strong>
             <span>LIVE MARKET ANALYSIS</span>
@@ -516,7 +866,11 @@ function Dashboard({ user, onLogout }) {
             {categories.map((item) => (
               <button
                 key={item}
-                className={category === item ? "market-tab active" : "market-tab"}
+                className={
+                  category === item
+                    ? "market-tab active"
+                    : "market-tab"
+                }
                 onClick={() => setCategory(item)}
               >
                 {item}
@@ -531,15 +885,21 @@ function Dashboard({ user, onLogout }) {
           <div className="horizontal-scroll">
             {MARKETS[category].map((item) => (
               <button
-                key={item.label}
+                key={item[0]}
                 className={
-                  instrument.label === item.label
+                  instrument.label === item[0]
                     ? "instrument-tab active"
                     : "instrument-tab"
                 }
-                onClick={() => setInstrument(item)}
+                onClick={() =>
+                  setInstrument({
+                    label: item[0],
+                    symbol: item[1],
+                    tv: item[2],
+                  })
+                }
               >
-                {item.label}
+                {item[0]}
               </button>
             ))}
           </div>
@@ -553,13 +913,18 @@ function Dashboard({ user, onLogout }) {
 
           <div className="price-area">
             <span className="overview-label">LIVE PRICE</span>
+
             <strong>
               {currentPrice !== null
                 ? currentPrice.toFixed(priceDigits)
                 : "--"}
             </strong>
 
-            <small className={priceChange >= 0 ? "positive" : "negative"}>
+            <small
+              className={
+                priceChange >= 0 ? "positive" : "negative"
+              }
+            >
               {currentPrice !== null
                 ? `${priceChange >= 0 ? "+" : ""}${priceChange.toFixed(
                     priceDigits
@@ -591,17 +956,16 @@ function Dashboard({ user, onLogout }) {
           </div>
         )}
 
-        {!marketError && loading && (
-          <div className="connection-state">
-            <span>Connecting to live market data...</span>
-          </div>
-        )}
+        <TradingStats history={history} />
 
         <section className="signal-card">
           <div className="signal-top">
             <div>
               <span className="section-label">JIRMAS SIGNAL</span>
-              <h2 className={`signal-${analysis.signal.toLowerCase()}`}>
+
+              <h2
+                className={`signal-${analysis.signal.toLowerCase()}`}
+              >
                 {analysis.signal}
               </h2>
             </div>
@@ -616,6 +980,49 @@ function Dashboard({ user, onLogout }) {
             <div style={{ width: `${analysis.score}%` }} />
           </div>
 
+          {pendingSignal && (
+            <div className="signal-timing">
+              <div>
+                <span>ENTRY</span>
+                <strong>
+                  {formatUTCPlus6(
+                    pendingSignal.entry_time
+                  )}{" "}
+                  UTC+6
+                </strong>
+              </div>
+
+              <div>
+                <span>EXPIRY</span>
+                <strong>
+                  {formatUTCPlus6(
+                    pendingSignal.expiry_time
+                  )}{" "}
+                  UTC+6
+                </strong>
+              </div>
+
+              <div>
+                <span>COUNTDOWN</span>
+                <strong>
+                  {String(countdownMinutes).padStart(2, "0")}:
+                  {String(countdownSeconds).padStart(2, "0")}
+                </strong>
+              </div>
+            </div>
+          )}
+
+          {!pendingSignal &&
+            analysis.signal !== "WAIT" &&
+            analysis.score >= 70 && (
+              <div className="signal-timing">
+                <div>
+                  <span>ENTRY</span>
+                  <strong>WAITING FOR NEW CANDLE</strong>
+                </div>
+              </div>
+            )}
+
           <div className="signal-grid">
             <div>
               <span>Trend</span>
@@ -629,7 +1036,9 @@ function Dashboard({ user, onLogout }) {
 
             <div>
               <span>Stochastic</span>
-              <strong>{analysis.stochastic.toFixed(1)}</strong>
+              <strong>
+                {analysis.stochastic.toFixed(1)}
+              </strong>
             </div>
 
             <div>
@@ -681,6 +1090,8 @@ function Dashboard({ user, onLogout }) {
           </div>
         </section>
 
+        <SignalHistory history={history} />
+
         <section className="timing-card">
           <div>
             <span>TIMEFRAME</span>
@@ -688,9 +1099,18 @@ function Dashboard({ user, onLogout }) {
           </div>
 
           <div>
+            <span>TIME ZONE</span>
+            <strong>UTC+6</strong>
+          </div>
+
+          <div>
             <span>DATA STATUS</span>
             <strong>
-              {marketError ? "OFFLINE" : loading ? "CONNECTING" : "LIVE"}
+              {marketError
+                ? "OFFLINE"
+                : loading
+                  ? "CONNECTING"
+                  : "LIVE"}
             </strong>
           </div>
 
@@ -698,32 +1118,36 @@ function Dashboard({ user, onLogout }) {
             <span>LAST UPDATE</span>
             <strong>
               {lastUpdate
-                ? lastUpdate.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  })
+                ? formatUTCPlus6(lastUpdate)
                 : "--"}
             </strong>
           </div>
         </section>
 
         <div className="dashboard-actions">
-          <a href={SUPPORT_URL} target="_blank" rel="noreferrer">
+          <a
+            href={SUPPORT_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
             <TelegramIcon />
             Support
           </a>
 
-          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer">
+          <a
+            href={COMMUNITY_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
             <TelegramIcon />
             Trade Zone
           </a>
         </div>
 
         <p className="disclaimer">
-          Jirmas Signals provides technical market analysis only. Signals
-          are not guaranteed and are not financial advice. Always manage
-          your risk responsibly.
+          Jirmas Signals provides technical market analysis only.
+          Signals are not guaranteed and are not financial advice.
+          Always manage risk responsibly.
         </p>
       </section>
     </main>
@@ -748,7 +1172,7 @@ export default function App() {
       .maybeSingle();
 
     if (error) {
-      console.error("Access check error:", error);
+      console.error(error);
       setAccess(false);
       return;
     }
@@ -779,19 +1203,21 @@ export default function App() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-      if (!mounted) return;
+    } = supabase.auth.onAuthStateChange(
+      async (_event, newSession) => {
+        if (!mounted) return;
 
-      setSession(newSession);
+        setSession(newSession);
 
-      if (newSession?.user) {
-        await checkAccess(newSession.user.id);
-      } else {
-        setAccess(false);
+        if (newSession?.user) {
+          await checkAccess(newSession.user.id);
+        } else {
+          setAccess(false);
+        }
+
+        setChecking(false);
       }
-
-      setChecking(false);
-    });
+    );
 
     return () => {
       mounted = false;
@@ -808,7 +1234,6 @@ export default function App() {
     });
 
     if (error) {
-      console.error(error);
       alert("Google login failed. Please try again.");
     }
   }
@@ -841,5 +1266,10 @@ export default function App() {
     );
   }
 
-  return <Dashboard user={session.user} onLogout={handleLogout} />;
+  return (
+    <Dashboard
+      user={session.user}
+      onLogout={handleLogout}
+    />
+  );
 }
